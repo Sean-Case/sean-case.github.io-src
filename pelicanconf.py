@@ -74,4 +74,4 @@ GOOGLE_ANALYTICS = 'UA-29489330-2'
 
 MD_EXTENSIONS = ['toc']
 
-DISQUS_SITENAME = "https://seancase.disqus.com"
+DISQUS_SITENAME = "seancase"
