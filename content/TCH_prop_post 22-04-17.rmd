@@ -1,0 +1,766 @@
+---
+title: Influence of Sequoia AVC Edge touchscreen use on the Wisconsin Trump vote
+author: Sean Case
+date: 2017-04-23 22:00
+slug: avcedgetrump
+category: AVC Edge systems and Trump
+tags: election2016
+summary:
+* The proportion of votes coming from use of the Sequoia AVC Edge electronic voting system in Wisconsin was significantly correlated with increases in vote % for Trump in the 2016 Republican primary and the 2016 Presidential vote. This was not the case for the 2012 Presidential contest.
+* This finding held true even when the use of AVC Edge voting machines was considered alongside a range of municipality-level demographic and voting method variables.
+* Results suggest that if manipulation occurred, it did not artificially increase the number of voters but instead modified the votes of genuine voters.
+* An investigation of the physical voting machines used in Wisconsin in 2016 is needed to determine whether they have been tampered with before or during the 2016 elections to favour Trump.
+---
+  <script language="javascript">
+    function toggle(num) {
+      var ele = document.getElementById("toggleText" + num);
+      var text = document.getElementById("displayText" + num);
+      if(ele.style.display == "block") {
+        ele.style.display = "none";
+        text.innerHTML = "Show";
+      }
+      else {
+        ele.style.display = "block";
+        text.innerHTML = "Hide";
+      }
+   }
+  </script>
+
+<style type="text/css">
+.button {
+border: 1px solid black;
+padding: 2px;
+color: black;
+border-radius: 5px;
+background-color: Gainsboro;
+text-decoration: none;
+}
+
+.button:hover {
+color: darkgrey;
+cursor: pointer;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Custom css styling above from: https://support.rstudio.com/hc/en-us/community/posts/200655456-Custom-styling-when-knitting-html-
+
+# setwd("https://github.com/Sean-Case/WisconsinElection2016")
+require(dplyr);require(plyr); require(ggplot2); require(nlme); require(car); require(reshape2); require(Hmisc);require(knitr); require(corrplot); require(rms); require(effects); require(tidyr);
+require(ReporteRs); require(docxtractr)
+
+setwd("C:\\Users\\s_cas\\Dropbox\\Perso\\2016 voting election county results\\Wisconsin\\Model Refinement Feb 2016\\")
+getwd()
+
+# https://www.r-bloggers.com/using-and-interpreting-different-contrasts-in-linear-models-in-r/
+# options(contrasts=c('contr.sum','contr.poly'))
+options(contrasts=c('contr.treatment','contr.poly'))
+
+model.o.df = read.csv("modeldfward.o.csv",stringsAsFactors = F)
+
+model.o.df$demwinner2012 = with(model.o.df, ifelse(demwinner2012 == 1 , "Yes", model.o.df$demwinner2012))
+model.o.df$demwinner2012 = with(model.o.df, ifelse(demwinner2012 == 0, "No", model.o.df$demwinner2012))
+
+model.o.df$tch_prop_split = with(model.o.df, ifelse(tch_prop < 0.25, 0, 1))
+model.o.df$turnout_highlow = with(model.o.df, ifelse(turnout_reg_feb <= 0.85, 0, 1))
+model.o.df$density_levels = with(model.o.df, ifelse(muni.dense < 50, "< 50", 1))
+model.o.df$density_levels = with(model.o.df, ifelse(muni.dense >= 50, "50 - 200", model.o.df$density_levels))
+model.o.df$density_levels = with(model.o.df, ifelse(muni.dense >= 200, "Two hundred +", model.o.df$density_levels))
+
+# model.o.df$vote_levels = with(model.o.df, ifelse(total_ballots < 500, "< 500", 1))
+# model.o.df$vote_levels = with(model.o.df, ifelse(total_ballots >= 500, "500 - 1000", 1))
+# model.o.df$vote_levels = with(model.o.df, ifelse(total_ballots >= 1000, "1000 +", model.o.df$vote_levels))
+# # model.o.df$vote_levels = ordered(model.o.df$vote_levels,levels = c("< 500","500 - 1000","1000 +"))
+# 
+model.o.df$turnout_levels = with(model.o.df, ifelse(turnout_reg_feb < .80, "< 80", 1))
+model.o.df$turnout_levels = with(model.o.df, ifelse(turnout_reg_feb >= .80, "80 - 89", model.o.df$turnout_levels))
+model.o.df$turnout_levels = with(model.o.df, ifelse(turnout_reg_feb >= .90, "90 - 94", model.o.df$turnout_levels))
+model.o.df$turnout_levels = with(model.o.df, ifelse(turnout_reg_feb >= .95, "95 +", model.o.df$turnout_levels))
+
+model.o.df$inc_levels = NA
+model.o.df$inc_levels = with(model.o.df, ifelse(inc_2015 < median(inc_2015,na.rm=T), "Below median", model.o.df$inc_levels))
+model.o.df$inc_levels = with(model.o.df, ifelse(inc_2015 >= median(inc_2015,na.rm=T), "Higher than median", model.o.df$inc_levels))
+
+model.o.df$grad_levels = NA
+model.o.df$grad_levels = with(model.o.df, ifelse(pct_graduate < median(pct_graduate,na.rm=T), "Below median", model.o.df$grad_levels))
+model.o.df$grad_levels = with(model.o.df, ifelse(pct_graduate >= median(pct_graduate,na.rm=T), "Higher than median", model.o.df$grad_levels))
+
+model.o.df$most_likely_places = with(model.o.df, ifelse(muni.dense > 200 & tch_prop_split == 1 & tch_model_off_full == "Dominion (Sequoia)/Command Central-Edge",1,0))
+
+  model.o.df$tch_model_off[model.o.df$tch_model_off == "Dominion (Sequoia)/Command Central-Edge; ES&S Automark"] = "Dominion (Sequoia)/Command Central-Edge"
+  model.o.df$tch_model_off_full[model.o.df$tch_model_off_full == "Dominion (Sequoia)/Command Central-Edge; ES&S Automark"] = "Dominion (Sequoia)/Command Central-Edge"
+  
+  model.o.df = subset(model.o.df, tch_model_off_full == "Dominion (Sequoia)/Command Central-Edge" | tch_model_off_full == "aNone")
+ 
+  # remove "Dominion (Premier)-Accuvote TSX"
+
+    model.o.df$tch_model_off_true = NA
+    model.o.df$tch_model_off_true = ifelse(model.o.df$tch_prop > 0 & !is.na(model.o.df$tch_use_off_true), model.o.df$tch_model_off_full, "aNone")
+
+    model.o.df$turnout_reg_feb[model.o.df$turnout_reg_feb > 1] = 1; model.o.df$tch_prop = ifelse(model.o.df$tch_prop > 1 & model.o.df$tch_model_off_full == "aNone",NA,model.o.df$tch_prop)
+     # model.o.df$turnout_reg_feb[model.o.df$turnout_reg_feb < 0.6] = NA
+    model.o.df$sameday_reg_prop[model.o.df$sameday_reg_prop > 1] = NA
+    model.o.df$counted_absent_prop[model.o.df$counted_absent_prop > 1] = NA
+    model.o.df$rejected_absent_prop[model.o.df$rejected_absent_prop > 1] = NA
+    model.o.df$late_registrants[model.o.df$late_registrants > 1] = NA
+
+    model.o.df$sameday_reg_prop = log(model.o.df$sameday_reg_prop + 1) # Because there are a few big large outliers
+    model.o.df$counted_absent_prop = log(model.o.df$counted_absent_prop + 1)
+    model.o.df$rejected_absent_prop = log(model.o.df$rejected_absent_prop + 1)
+
+        model.o.df[model.o.df == Inf] = NA
+        model.o.df[model.o.df == -Inf] = NA
+        
+    model.o.df$trump_vote_change = model.o.df$republican_votes.perc - model.o.df$votes_perc_trump
+    
+    model.o.df$tch_prop_split = with(model.o.df, ifelse(tch_prop_split == 1 , "Yes", model.o.df$tch_prop_split))
+    model.o.df$tch_prop_split = with(model.o.df, ifelse(tch_prop_split == 0, "No", model.o.df$tch_prop_split))
+
+    tch.model.o.df = subset(model.o.df, tch_prop > 0)
+    tch.model.o.df[tch.model.o.df == -Inf] = NA
+    tch.model.o.df[tch.model.o.df == Inf] = NA
+    tch.model.o.df$tch_model_off_full = as.factor(as.character(tch.model.o.df$tch_model_off_full))
+```
+
+# Introduction
+My [previous analysis](https://sean-case.github.io/wisconsinmuni) suggested that the Wisconsin 2016 vote may have been affected by the extent of the use of voting machines (also known as touchscreen voting systems, or direct recording electronic voting, DRE, machines).
+
+This post shows that the use of [Sequoia Dominion AVC Edge voting machines](https://www.verifiedvoting.org/resources/voting-equipment/sequoia/avc-edge/) in Wisconsin municipalities in the 2016 Republican primary and 2016 Presidential election was strongly and positively correlated with higher votes for Trump, even when considered alongside a large number of municipality-level demographic, income, educational, and election-related variables (both for original vote data and following the recount). These findings suggest that the Sequoia voting machines used in Wisconsin in 2016 should be investigated further to determine whether any vulnerabilities of such systems (for example see [here](https://www.cyberscoop.com/security-firm-stokes-election-hacking-fears-media-bites-on-story/), and [here](http://votingsystems.cdn.sos.ca.gov/oversight/ttbr/sequoia-source-public-jul26.pdf), and reported voting machines with broken tamper-proof seals [here](http://www.palmerreport.com/news/modems-tampered-seals-wisconsin-recount/374/)) were manipulated in 2016 to influence the vote.
+
+In the following analysis, the effect of the extent of the use of voting machines on the Presidential elections in 2012 and 2016 are compared against a number of municipality-level demographic variables, inspired by post about the 2016 election by [Thomas Cooley, Ben Griffy, and Peter Rupert at Economic Snapshot](https://econsnapshot.com/2016/12/06/electronic-voting-machines-and-the-election/) and by further discussions with Professor Barry Burden of the University of Wisconsin, Madison. Demographic, income, and educational data at the municipality level was taken from [the TIGER database of 2011-2015 American Community Survey (ACS) 5-year estimates](https://www.census.gov/geo/maps-data/data/tiger-data.html). Vote and voting machine data was taken from the [Wisconsin Elections Commission](http://elections.wi.gov). Finally, the spatial data used for the maps was taken from the ['GeoData@Wisconsin' site, hosted by the University of Wisconsin - Madison](http://maps.sco.wisc.edu/opengeoportal/). 
+
+*If you want to recreate this analysis yourself, the data underlying the analysis described here can be found at [Github](https://github.com/Sean-Case/WisconsinElection2016). The .csv files used in the models are named modeldfward.o.csv (original data), and modeldfward.r.csv (recount data).*
+
+## Overview of voting machine effect on the Republican vote change 2012 - 2016
+
+<iframe width="100%" height="520" frameborder="0" src="https://seancase.carto.com/builder/732496b0-160e-11e7-9ec8-0e05a8b3e3d7/embed" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>
+
+*See the full-size Carto map [the change in Republican vote from 2012 to 2016 and influence of voting machines](https://seancase.carto.com/builder/732496b0-160e-11e7-9ec8-0e05a8b3e3d7).*
+
+# Results summary
+<a id="displayText100" class = "button" href="javascript:toggle(100);">Hide graph and data</a>
+  <div id="toggleText100" style="display: block">
+```{r olsmodelgraphs1216a, echo=FALSE, fig.align='center',fig.height=6,fig.width=8, message=FALSE, warning=FALSE}
+    model.o.df$os_use_off = as.factor(model.o.df$os_use_off)
+model.o.df$tch_use_off_true = as.factor(model.o.df$tch_use_off_true)
+model.o.df$county = as.factor(model.o.df$county)
+model.o.df$demwinner2012 = as.factor(model.o.df$demwinner2012)
+model.o.df$tch_prop_split = as.factor(model.o.df$tch_prop_split)
+model.o.df$density_levels = as.factor(model.o.df$density_levels)
+model.o.df$turnout_levels = as.factor(model.o.df$turnout_levels)
+
+          dem.tchuse.density.percvote = ggplot(data = model.o.df[                  !is.na(model.o.df$tch_prop)& !is.na(model.o.df$demwinner2012),],
+                                                      aes(x = tch_prop,
+                                                             y = rep.change.perc, colour = demwinner2012,
+                                                          group = demwinner2012)) +
+                                                          #shape = factor(tch_model_off))) +
+    geom_point(alpha = 0.3,stroke = 2,pch = 21) +
+          geom_smooth(alpha = 0.5,size = 1) +
+        scale_y_continuous(name = "Republican vote change 2012 - 2016 (%)") +
+  scale_x_continuous(name = "Proportion of votes from use of Sequoia AVC Edge voting machines")+
+  # scale_fill_discrete(name = "
+  #                     Population density (ppl / km2) in municipality (log, people / km)") +
+            scale_colour_discrete(name = "Won by Democrats in 2012") +
+            #facet_wrap(~demwinner2012,nrow=1) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  dem.tchuse.density.percvote
+
+  tch.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop) & !is.na(model.o.df$demwinner2012) & !is.na(model.o.df$tch_prop_split),], melt(data.frame(demwinner2012, density_levels,tch_prop_split,rep.change.perc)))
+  
+    tch.dem.change.cast.simple = dcast(tch.dem.change.melt, tch_prop_split ~variable, mean,na.rm=T)
+  colnames(tch.dem.change.cast.simple) = c("AVC Edge machines used by > 25% of voters?","Change in Republican vote (%)")
+  kable(tch.dem.change.cast.simple,digits = 1, format = "markdown",padding = 0, align = "c")
+  
+  tch.dem.change.cast = dcast(tch.dem.change.melt, demwinner2012+tch_prop_split ~variable, mean,na.rm=T)
+      colnames(tch.dem.change.cast) = c("Won by Democrats in 2012","AVC Edge machines used by > 25% of voters?","Change in Republican vote (%)")
+kable(tch.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+```
+
+</div>
+*The change in vote % for Republicans between the 2012 and 2016 Wisconsin Presidential election by the proportion of votes coming from use of the Sequoia AVC Edge touchscreen voting machine.*
+
+The above graph and tables show a strong trend in increasing change in Republican vote in Wisconsin municipalities between 2012 and 2016 according to how often touchscreen voting machines (specifically the Sequoia AVC Edge system) were used in each location. By using statistical models called linear regression models, and looking at the Republican vote compared against touchscreen and other variables such as ethnicity, age, education, method of voting, and previous voting patterns, we can determine whether this trend is statistically significant and worth looking into further, or if it can be explained by other variables and / or random variation in votes. This analysis considered not only the influence of AVC Edge touchscreen use in Wisconsin in the 2016 Presidential election, but also in the 2012 Presidential election and the 2016 Republican primary. For the Trump spring primary, the 2016 Presidential vote, and the change in Republican vote between 2012 and 2016, the use of the Sequoia AVC Edge touchscreen voting system was a statistically significant in increasing the votes for Trump. 
+
+*An important note: This correlation, despite its strength, does not indicate 100% that voting systems were intentionally manipulated. This will only be confirmed following analysis of the specific machines used in the 2016 contests, preferably in the areas where touchscreen use is most strongly correlated with the greatest increases in Republican vote compared to 2012.*
+
+The graphs, tables, and model outputs underlying this analysis are presented further down this post. However, first I will summarise the results to show all of the variables that significantly influenced the Republican vote in 2012 and 2016. In the following results summaries, variables that had a statistically significant effect on the Republican / Trump vote in 2012 and 2016 are highlighted. '+' symbols indicate that a particular variable had a positive effect on the Republican vote in the election indicated on the column header (p < 0.05). '-' symbols indicate that the variable had a negative effect. 'NA' indicates that the variable was not included in that particular model.
+
+*For the stats people - errors were clustered by county to account for correlation between variables in these spatial units, meaning that significance terms are often 'less significant' than a standard linear regression would give.*
+
+## Proportion of touchscreen use 2012 to 2016
+```{r summary table}
+p.find.table.fire.read = read_docx("Republican table 22-04-17.docx")
+p.find.table.fire = docx_extract_all_tbls(p.find.table.fire.read)
+p.find.table.df = data.frame(p.find.table.fire)
+
+colnames(p.find.table.df) = c("Independent variable","Republican presidential vote 2012","Trump spring primary 2016",
+        "Trump vote change primary to 2016 presidential election",
+        "Republican presidential vote 2016", "Republican vote change presidential 2012 to 2016"
+        )
+kable(p.find.table.df[1:3,], format = "markdown",padding = 0, align = "c")
+
+```
+
+* Vote for Trump in primary, Republican vote 2016, and Republican vote change 2012-2016 were POSITIVELY affected by percentage of ballots coming from use of the Sequoia AVC Edge in a municipality. This effect did not change between the primary and the final 2016 vote.
+
+* The increased vote for Republicans from use of the Sequoia AVC Edge was not due simply to an increased percentage of voters using the touchscreen system. In fact, compared to the Republican primary in 2016, increased touchscreen use had a negative effect. These results suggest that if manipulation occurred, it did not artificially increase the number of voters in the 2016 Presidential election, but instead modified the votes of those who had actually voted using the AVC Edge.
+
+## Other vote method variables 2012 to 2016
+
+```{r summary vote method}
+p.vote.method = p.find.table.df[(4:8),]
+rownames(p.vote.method) = NULL
+kable(p.vote.method, format = "markdown",padding = 0, align = "c")
+
+```
+
+* Greater number of ballots counted (an indicator for the population size of the municipality) had a positive effect on the Republican vote only in 2012.
+
+* Votes for Trump in the 2016 Presidential contest were higher where more voters registered on the same day.
+
+* Trump votes in the 2016 Presidential contest were lower Where the proportion of absentee ballots were highest.
+
+## Demographic variables 2012 to 2016
+
+```{r summary demographics}
+p.vote.demo = p.find.table.df[(9:17),]
+rownames(p.vote.demo) = NULL
+
+kable(p.vote.demo, format = "markdown",padding = 0, align = "c")
+```
+
+* Municipalities of lower population density consistently voted more for Republicans in 2012 and 2016
+
+* In 2012 poorer people voted more for Democrats. In 2016 this was reversed - in the Primary poorer people went for Trump, and in the presidential contest richer people went for Clinton, poorer for Trump.
+
+* Men were more likely to vote for Republicans for the 2016 Presidential contest.
+
+* White people were more likely to vote Republican in 2012 and for Trump in 2016. Black and Latino voters did not significantly favour Democrats or Republicans in any contests.
+
+* University graduates were more likely to vote Democrat in all instances.
+
+* Older people and unemployed people were more likely to vote for Trump in the 2016 Republican primary, but not in the 2016 presidential election.
+
+## Votes in previous elections
+
+```{r summary prevvote}
+p.vote.vote = p.find.table.df[(18:23),]
+rownames(p.vote.vote) = NULL
+
+kable(p.vote.vote, format = "markdown",padding = 0, align = "c")
+```
+
+* Voting for Democrats or Other candidates in 2012 indicated a greater positive change in Republican votes in the 2016 Presidential contest compared to 2012, and a greater vote for Trump in the Primary. This indicated that Trump was successful at swinging 2012 'Democrat' and 'Other' voters to him.
+
+* Voting Trump in the primary was (unsurprisingly) linked to higher votes in the 2016 election. Voting patterns in the Democrat primary were not significantly linked to the results of the 2016 Presidential vote.
+
+# Graphs and models of the Republican / Trump vote vs AVC Edge use 2012-2016
+The following section visualises the effect of Sequoia AVC Edge presence on the Republican / Trump vote, as well as the outputs of the statistical models underlying the results already summarised.
+
+## Republican vote in 2012
+The following graph and tables show that the vote for Republicans in 2012 Presidential elections (Mitt Romney as candidate) was not significantly different in areas where Sequoia AVC Edge systems were used for at least 25% of the ballots compared to areas that used them less (49.4 vs 51.3% respectively). Below this, the model output shows that the touchscreen variable (tch_prop) did not have a statistically significant effect on the Republican vote.
+
+<a id="displayText2" class = "button" href="javascript:toggle(2);">Hide graph and data</a>
+  <div id="toggleText2" style="display: block">
+```{r olsmodelgraphs2012, echo=FALSE, fig.align='center',fig.height=6,fig.width=8, message=FALSE, warning=FALSE}
+    model.o.df$os_use_off = as.factor(model.o.df$os_use_off)
+model.o.df$tch_use_off_true = as.factor(model.o.df$tch_use_off_true)
+model.o.df$county = as.factor(model.o.df$county)
+model.o.df$demwinner2012 = as.factor(model.o.df$demwinner2012)
+model.o.df$tch_prop_split = as.factor(model.o.df$tch_prop_split)
+model.o.df$density_levels = as.factor(model.o.df$density_levels)
+model.o.df$turnout_levels = as.factor(model.o.df$turnout_levels)
+
+          dem.tchuse.density.percvote = ggplot(data = model.o.df[!is.na(model.o.df$tch_prop_2012)& !is.na(model.o.df$demwinner2012),],
+                                                      aes(x = tch_prop_2012,
+                                                             y = rep.perc2012, colour = demwinner2012,
+                                                          group = demwinner2012)) +
+                                                          #shape = factor(tch_model_off))) +
+    geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
+          geom_smooth(alpha = 0.5,size = 1) +
+        scale_y_continuous(name = "Republican vote 2012 (%)") +
+  scale_x_continuous(name = "Proportion of votes from use of Sequoia AVC Edge voting machines")+
+  # scale_fill_discrete(name = "
+  #                     Population density (ppl / km2) in municipality (log, people / km)") +
+            scale_colour_discrete(name = "Democrat won in 2012") +
+            #facet_wrap(~demwinner2012,nrow=1) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  dem.tchuse.density.percvote
+  
+  tch.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop_demprim) & !is.na(model.o.df$demwinner2012) & !is.na(model.o.df$tch_prop_split),], melt(data.frame(demwinner2012,tch_prop_split,rep.perc2012)))
+    tch.dem.change.cast.simple = dcast(tch.dem.change.melt, tch_prop_split ~variable, mean,na.rm=T)
+  colnames(tch.dem.change.cast.simple) = c("AVC Edge machines used by > 25% of voters?","Republican vote (%)")
+  kable(tch.dem.change.cast.simple,digits = 1, format = "markdown",padding = 0, align = "c")
+  
+  tch.dem.change.cast = dcast(tch.dem.change.melt, demwinner2012+tch_prop_split ~variable, mean,na.rm=T)
+      colnames(tch.dem.change.cast) = c("Won by Democrats in 2012","AVC Edge machines used by > 25% of voters?","Republican vote (%)")
+kable(tch.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+  
+# tch.demwin.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop_2012) & !is.na(model.o.df$density_levels) & !is.na(model.o.df$demwinner2012) & !is.na(model.o.df$tch_prop_split),], melt(data.frame(tch_prop_split,demwinner2012,density_levels,dem.perc2012)))
+#     tch.demwin.dem.change.cast = dcast(tch.demwin.dem.change.melt, density_levels+tch_prop_split~demwinner2012+variable, mean,na.rm=T)
+#     colnames(tch.demwin.dem.change.cast) = c("Population density (ppl / km2)","AVC Edge machines used by > 25% of voters?","Vote Republicans 2012 (%) - areas Dem lost 2012","Vote Republicans 2012 (%) - areas Dem won 2012")
+# kable(tch.demwin.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+```
+
+</div>
+
+Model output
+
+<a id="displayText3" class = "button" href="javascript:toggle(3);">Show model output</a>
+  <div id="toggleText3" style="display: none">
+```{r olsmodel2012, echo=FALSE, warning = FALSE, fig.align='center',fig.height=6,fig.width=8}
+model_formula = formula(rep.perc2012 ~ total_ballots_2012 + #+ os_use_off
+                        muni.dense + pct_male + pct_black + inc_2015 + unemp_rate + oth.perc2012 +
+                        age_med + pct_latino + pct_white + turnout_reg_2012 +
+                         pct_graduate + rejected_absent_prop_2012 + counted_absent_prop_2012 + late_registrants_2012 + tch_prop_2012)
+
+  # ols1 = lm(model_formula, data = model.o.df, na.action = na.exclude)
+   # summary(ols1)
+  # AIC(ols1)
+
+ols2 <- ols(model_formula, data=model.o.df, x=TRUE, y=TRUE)
+# print(ols2)
+# Second, the cluster-robust covariance is called
+cov <- robcov(ols2, cluster=model.o.df$county)
+print(cov)
+# print(cov$var)
+# AIC(cov)
+```
+
+</div>
+
+## Republican 2016 election vote
+The following graph and tables show that the vote for Trump in the 2016 Presidential election was significantly different in areas where Sequoia AVC Edge systems were used compared to areas that used them less or not at all. In areas where Sequoia AVC Edge systems were used more than 25% of the time, the Trump vote was 60.4% on average compared to 55.3% in areas where they were used less or not at all. Below this, the model output shows the significant effect of the touchscreen variable (tch_prop) alongside all the other demographic and voting method variables.
+
+<a id="displayText8" class = "button" href="javascript:toggle(8);">Hide graph and data</a>
+  <div id="toggleText8" style="display: block">
+```{r olsmodelgraphs2016, echo=FALSE, fig.align='center',fig.height=6,fig.width=8, message=FALSE, warning=FALSE}
+    model.o.df$os_use_off = as.factor(model.o.df$os_use_off)
+model.o.df$tch_use_off_true = as.factor(model.o.df$tch_use_off_true)
+model.o.df$county = as.factor(model.o.df$county)
+model.o.df$demwinner2012 = as.factor(model.o.df$demwinner2012)
+model.o.df$tch_prop_split = as.factor(model.o.df$tch_prop_split)
+model.o.df$density_levels = as.factor(model.o.df$density_levels)
+model.o.df$turnout_levels = as.factor(model.o.df$turnout_levels)
+
+          dem.tchuse.density.percvote = ggplot(data = model.o.df[                  !is.na(model.o.df$tch_prop)& !is.na(model.o.df$demwinner2012),],
+                                                      aes(x = tch_prop,
+                                                             y = republican_votes.perc, colour = demwinner2012,
+                                                          group = demwinner2012)) +
+                                                          #shape = factor(tch_model_off))) +
+    geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
+          geom_smooth(alpha = 0.5,size = 1) +
+        scale_y_continuous(name = "Republican vote 2016 (%)") +
+  scale_x_continuous(name = "Proportion of votes from use of Sequoia AVC Edge voting machines")+
+  # scale_fill_discrete(name = "
+  #                     Population density (ppl / km2) in municipality (log, people / km)") +
+            scale_colour_discrete(name = "Democrat won in 2012") +
+            #facet_wrap(~demwinner2012,nrow=1) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  dem.tchuse.density.percvote
+
+  tch.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop) & !is.na(model.o.df$demwinner2012) & !is.na(model.o.df$tch_prop_split),], melt(data.frame(demwinner2012, density_levels,tch_prop_split,republican_votes.perc)))
+    tch.dem.change.cast.simple = dcast(tch.dem.change.melt, tch_prop_split ~variable, mean,na.rm=T)
+  colnames(tch.dem.change.cast.simple) = c("AVC Edge machines used by > 25% of voters?","Republican vote (%)")
+  kable(tch.dem.change.cast.simple,digits = 1, format = "markdown",padding = 0, align = "c")
+  
+  tch.dem.change.cast = dcast(tch.dem.change.melt, demwinner2012+tch_prop_split ~variable, mean,na.rm=T)
+      colnames(tch.dem.change.cast) = c("Won by Democrats in 2012","AVC Edge machines used by > 25% of voters?","Republican vote (%)")
+kable(tch.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+
+# tch.demwin.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop) & !is.na(model.o.df$density_levels) & !is.na(model.o.df$demwinner2012) & !is.na(model.o.df$tch_prop_split),], melt(data.frame(tch_prop_split,demwinner2012,density_levels,republican_votes.perc)))
+#     tch.demwin.dem.change.cast = dcast(tch.demwin.dem.change.melt, density_levels+tch_prop_split~demwinner2012+variable, mean,na.rm=T)
+#     colnames(tch.demwin.dem.change.cast) = c("Population density (ppl / km2)","AVC Edge machines used by > 25% of voters?","Vote Republicans 2016 (%) - areas Dem lost 2012","Vote Republicans 2016 (%) - areas Dem won 2012")
+# kable(tch.demwin.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+```
+
+</div>
+
+Model output
+
+<a id="displayText9" class = "button" href="javascript:toggle(9);">Show model output</a>
+  <div id="toggleText9" style="display: none">
+```{r olsmodel2016, echo=FALSE, warning = FALSE, fig.align='center',fig.height=6,fig.width=8}
+model_formula = formula(republican_votes.perc ~ total_ballots + #+ os_use_off
+                        muni.dense + pct_male + pct_black + inc_2015 + unemp_rate + oth.perc2012 +
+                        age_med + pct_latino + pct_white  + turnout_reg_feb + sameday_reg_prop +
+                         tch_prop + pct_graduate  + rejected_absent_prop + counted_absent_prop + 
+                        dem.perc2012 + late_registrants + votes_perc_sanders_demprim + votes_perc_other_demprim + votes_perc_trump_reprim + votes_perc_other_reprim + tch_prop_2012_2016_diff + tch_prop_reprim_diff
+                      )
+
+  # ols1 = lm(model_formula, data = model.o.df, na.action = na.exclude)
+   # summary(ols1)
+  # AIC(ols1)
+
+ols2 <- ols(model_formula, data=model.o.df, x=TRUE, y=TRUE)
+# print(ols2)
+# Second, the cluster-robust covariance is called
+cov <- robcov(ols2, cluster=model.o.df$county)
+print(cov)
+# print(cov$var)
+# AIC(cov)
+```
+
+</div>
+## Change in Republican vote between the 2012 and 2016 Presidential election
+The following graph and tables show that the change in votes for Republicans between the 2012 and 2016 Presidential elections was on average + 6.8% in areas where Sequoia AVC Edge systems were used for at least 25% of the ballots, compared to areas that used them less. Below this, the model output shows the significant effect of the touchscreen variable (tch_prop) alongside all the other demographic and voting method variables.
+
+<a id="displayText10" class = "button" href="javascript:toggle(10);">Hide graph and data</a>
+  <div id="toggleText10" style="display: block">
+```{r olsmodelgraphs1216, echo=FALSE, fig.align='center',fig.height=6,fig.width=8, message=FALSE, warning=FALSE}
+    model.o.df$os_use_off = as.factor(model.o.df$os_use_off)
+model.o.df$tch_use_off_true = as.factor(model.o.df$tch_use_off_true)
+model.o.df$county = as.factor(model.o.df$county)
+model.o.df$demwinner2012 = as.factor(model.o.df$demwinner2012)
+model.o.df$tch_prop_split = as.factor(model.o.df$tch_prop_split)
+model.o.df$density_levels = as.factor(model.o.df$density_levels)
+model.o.df$turnout_levels = as.factor(model.o.df$turnout_levels)
+
+          dem.tchuse.density.percvote = ggplot(data = model.o.df[                  !is.na(model.o.df$tch_prop)& !is.na(model.o.df$demwinner2012),],
+                                                      aes(x = tch_prop,
+                                                             y = rep.change.perc, colour = demwinner2012,
+                                                          group = demwinner2012)) +
+                                                          #shape = factor(tch_model_off))) +
+    geom_point(alpha = 0.3,stroke = 2,pch = 21) +
+          geom_smooth(alpha = 0.5,size = 1) +
+        scale_y_continuous(name = "Republican vote change 2012 - 2016 (%)") +
+  scale_x_continuous(name = "Proportion of votes from use of Sequoia AVC Edge voting machines")+
+  # scale_fill_discrete(name = "
+  #                     Population density (ppl / km2) in municipality (log, people / km)") +
+            scale_colour_discrete(name = "Won by Democrats in 2012") +
+            #facet_wrap(~demwinner2012,nrow=1) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  dem.tchuse.density.percvote
+
+  tch.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop) & !is.na(model.o.df$demwinner2012) & !is.na(model.o.df$tch_prop_split),], melt(data.frame(demwinner2012, density_levels,tch_prop_split,rep.change.perc)))
+  
+    tch.dem.change.cast.simple = dcast(tch.dem.change.melt, tch_prop_split ~variable, mean,na.rm=T)
+  colnames(tch.dem.change.cast.simple) = c("AVC Edge machines used by > 25% of voters?","Change in Republican vote (%)")
+  kable(tch.dem.change.cast.simple,digits = 1, format = "markdown",padding = 0, align = "c")
+  
+  tch.dem.change.cast = dcast(tch.dem.change.melt, demwinner2012+tch_prop_split ~variable, mean,na.rm=T)
+      colnames(tch.dem.change.cast) = c("Won by Democrats in 2012","AVC Edge machines used by > 25% of voters?","Change in Republican vote (%)")
+kable(tch.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+```
+
+</div>
+
+Model output
+
+<a id="displayText11" class = "button" href="javascript:toggle(11);">Show model output</a>
+  <div id="toggleText11" style="display: none">
+```{r olsmodel1216, echo=FALSE, warning = FALSE, fig.align='center',fig.height=6,fig.width=8}
+model_formula2 = formula(rep.change.perc ~ total_ballots + #+ os_use_off
+                        muni.dense + pct_male + pct_black + inc_2015 + unemp_rate + oth.perc2012 +
+                        age_med + pct_latino + pct_white + turnout_reg_feb + sameday_reg_prop +
+                         tch_prop + pct_graduate + rejected_absent_prop + counted_absent_prop + 
+                        dem.perc2012 + late_registrants + tch_prop + 
+                        votes_perc_sanders_demprim + votes_perc_other_demprim + votes_perc_trump_reprim + votes_perc_other_reprim + tch_prop_2012_2016_diff + tch_prop_reprim_diff)
+
+  # ols1 = lm(model_formula, data = model.o.df, na.action = na.exclude)
+   # summary(ols1)
+  # AIC(ols1)
+
+ols22 <- ols(model_formula2, data=model.o.df, x=TRUE, y=TRUE)
+# print(ols2)
+# Second, the cluster-robust covariance is called
+cov <- robcov(ols22, cluster=model.o.df$county)
+print(cov)
+# print(cov$var)
+# AIC(cov)
+
+# cor(model.o.df$rep.change.perc, model.o.df$republican_votes.perc,method="pearson")
+```
+
+</div>
+## The Trump primary vote
+The following graph and tables show that the vote for Trump in the 2016 Republican primary was significantly different in areas where Sequoia AVC Edge systems were used compared to areas that used them less or not at all. In areas where Sequoia AVC Edge systems were used more than 25% of the time, the Trump vote was 48.2% on average compared to 40.1% in areas where they were used less or not at all. Below this, the model output shows the significant effect of the touchscreen variable (tch_prop) alongside all the other demographic and voting method variables.
+
+<a id="displayText4" class = "button" href="javascript:toggle(4);">Hide graph and data</a>
+  <div id="toggleText4" style="display: block">
+```{r olsmodelgraphstrumpprim, echo=FALSE, fig.align='center',fig.height=6,fig.width=8, message=FALSE, warning=FALSE}
+    model.o.df$os_use_off = as.factor(model.o.df$os_use_off)
+model.o.df$tch_use_off_true = as.factor(model.o.df$tch_use_off_true)
+model.o.df$county = as.factor(model.o.df$county)
+model.o.df$demwinner2012 = as.factor(model.o.df$demwinner2012)
+model.o.df$tch_prop_split = as.factor(model.o.df$tch_prop_split)
+model.o.df$density_levels = as.factor(model.o.df$density_levels)
+model.o.df$turnout_levels = as.factor(model.o.df$turnout_levels)
+
+          dem.tchuse.density.percvote = ggplot(data = model.o.df[                 !is.na(model.o.df$tch_prop_reprim)& !is.na(model.o.df$demwinner2012),],
+                                                      aes(x = tch_prop_reprim,
+                                                             y = votes_perc_trump_reprim, colour = demwinner2012,
+                                                          group = demwinner2012)) +
+                                                          #shape = factor(tch_model_off))) +
+    geom_point(alpha = 0.3,stroke = 2,pch = 21) +
+          geom_smooth(alpha = 0.5,size = 1) +
+        scale_y_continuous(name = "Votes for Trump in Republican primary (%)") +
+  scale_x_continuous(name = "Proportion of votes from use of Sequoia AVC Edge voting machines")+
+  # scale_fill_discrete(name = "
+  #                     Population density (ppl / km2) in municipality (log, people / km)") +
+            scale_colour_discrete(name = "Democrat won in 2012") +
+            #facet_wrap(~demwinner2012,nrow=1) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  dem.tchuse.density.percvote
+
+  tch.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop_reprim) & !is.na(model.o.df$demwinner2012) & !is.na(model.o.df$tch_prop_split),], melt(data.frame(demwinner2012,tch_prop_split,votes_perc_trump_reprim)))
+    tch.dem.change.cast.simple = dcast(tch.dem.change.melt, tch_prop_split ~variable, mean,na.rm=T)
+  colnames(tch.dem.change.cast.simple) = c("AVC Edge machines used by > 25% of voters?","Votes for Trump in Republican primary (%)")
+  kable(tch.dem.change.cast.simple,digits = 1, format = "markdown",padding = 0, align = "c")
+  
+  tch.dem.change.cast = dcast(tch.dem.change.melt, demwinner2012+tch_prop_split ~variable, mean,na.rm=T)
+      colnames(tch.dem.change.cast) = c("Won by Democrats in 2012","AVC Edge machines used by > 25% of voters?","Votes for Trump in Republican primary (%)")
+kable(tch.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+
+# tch.demwin.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop_reprim) & !is.na(model.o.df$density_levels) & !is.na(model.o.df$demwinner2012) & !is.na(model.o.df$tch_prop_split),], melt(data.frame(tch_prop_split,demwinner2012,density_levels,votes_perc_trump_reprim)))
+#     tch.demwin.dem.change.cast = dcast(tch.demwin.dem.change.melt, density_levels+tch_prop_split~demwinner2012+variable, mean,na.rm=T)
+#     colnames(tch.demwin.dem.change.cast) = c("Population density (ppl / km2)","AVC Edge machines used by > 25% of voters?","Vote Republicans 2016 (%) - areas Dem lost 2012","Vote Republicans 2016 (%) - areas Dem won 2012")
+# kable(tch.demwin.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+```
+
+</div>
+
+Model output
+
+<a id="displayText5" class = "button" href="javascript:toggle(5);">Show model output</a>
+  <div id="toggleText5" style="display: none">
+```{r olsmodeltrumpprim, echo=FALSE, warning = FALSE, fig.align='center',fig.height=6,fig.width=8}
+model_formula = formula(votes_perc_trump_reprim ~ total_ballots_reprim + 
+                        muni.dense + pct_male + pct_black + inc_2015 + unemp_rate +
+                        age_med + pct_latino + pct_white + turnout_perc_reprim + sameday_reg_prop_reprim + pct_graduate + rejected_absent_prop_reprim + counted_absent_prop_reprim + late_registrants_reprim + dem.perc2012 + oth.perc2012 + tch_prop_reprim)
+
+  # ols1 = lm(model_formula, data = model.o.df, na.action = na.exclude)
+   # summary(ols1)
+  # AIC(ols1)
+
+ols2 <- ols(model_formula, data=model.o.df, x=TRUE, y=TRUE)
+# print(ols2)
+# Second, the cluster-robust covariance is called
+cov <- robcov(ols2, cluster=model.o.df$county)
+print(cov)
+# print(cov$var)
+AIC(cov)
+```
+
+</div>
+
+## Change in vote between primary and 2016 Presidential election
+
+The following graph and tables show that the  change in vote for Trump in the primary compared to the 2016 presidential election was not significantly different in areas where Sequoia AVC Edge systems were used for at least 25% of the ballots compared to areas that used them less (12.3% vs 15.3% respectively). Below this, the model output shows that the touchscreen variable (tch_prop) did not have a statistically significant effect on the Republican vote.
+
+<a id="displayText6" class = "button" href="javascript:toggle(6);">Hide graph and data</a>
+  <div id="toggleText6" style="display: block">
+```{r olsmodelgraphsdiffprim2016, echo=FALSE, fig.align='center',fig.height=6,fig.width=8, message=FALSE, warning=FALSE}
+    model.o.df$os_use_off = as.factor(model.o.df$os_use_off)
+model.o.df$tch_use_off_true = as.factor(model.o.df$tch_use_off_true)
+model.o.df$county = as.factor(model.o.df$county)
+model.o.df$demwinner2012 = as.factor(model.o.df$demwinner2012)
+model.o.df$tch_prop_split = as.factor(model.o.df$tch_prop_split)
+model.o.df$density_levels = as.factor(model.o.df$density_levels)
+model.o.df$turnout_levels = as.factor(model.o.df$turnout_levels)
+
+          dem.tchuse.density.percvote = ggplot(data = model.o.df[!is.na(model.o.df$demwinner2012) &                  !is.na(model.o.df$tch_prop)& !is.na(model.o.df$demwinner2012),],
+                                                      aes(x = tch_prop,
+                                                             y = trump_vote_change, colour = demwinner2012,
+                                                          group = demwinner2012)) +
+                                                          #shape = factor(tch_model_off))) +
+    geom_point(alpha = 0.3,stroke = 2,pch = 21) +
+          geom_smooth(alpha = 0.5,size = 1) +
+        scale_y_continuous(name = "Change in Trump vote between primary and election (%)") +
+  scale_x_continuous(name = "Proportion of votes from use of Sequoia AVC Edge voting machines")+
+  # scale_fill_discrete(name = "
+  #                     Democrat won in 2012 in municipality (log, people / km)") +
+            scale_colour_discrete(name = "Democrat won in 2012") +
+            #facet_wrap(~demwinner2012,nrow=1) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  dem.tchuse.density.percvote
+
+  tch.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop_reprim) & !is.na(model.o.df$demwinner2012) & !is.na(model.o.df$tch_prop_split),], melt(data.frame(demwinner2012,tch_prop_split,trump_vote_change)))
+    tch.dem.change.cast.simple = dcast(tch.dem.change.melt, tch_prop_split ~variable, mean,na.rm=T)
+  colnames(tch.dem.change.cast.simple) = c("AVC Edge machines used by > 25% of voters?","Change in Trump vote (%)")
+  kable(tch.dem.change.cast.simple,digits = 1, format = "markdown",padding = 0, align = "c")
+  
+  tch.dem.change.cast = dcast(tch.dem.change.melt, demwinner2012+tch_prop_split ~variable, mean,na.rm=T)
+      colnames(tch.dem.change.cast) = c("Won by Democrats in 2012","AVC Edge machines used by > 25% of voters?","Change in Trump vote (%)")
+kable(tch.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+
+# tch.demwin.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop) & !is.na(model.o.df$demwinner2012) & !is.na(model.o.df$demwinner2012) & !is.na(model.o.df$tch_prop_split),], melt(data.frame(tch_prop_split,density_levels,demwinner2012,trump_vote_change)))
+#     tch.demwin.dem.change.cast = dcast(tch.demwin.dem.change.melt, density_levels+tch_prop_split~demwinner2012+variable, mean,na.rm=T)
+#     colnames(tch.demwin.dem.change.cast) = c("Population density (ppl / km2)","AVC Edge machines used by > 25% of voters?","Vote change (%) - areas Dem lost 2012","Vote change (%) - areas Dem won 2012")
+# kable(tch.demwin.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+```
+
+</div>
+
+Model output
+
+<a id="displayText7" class = "button" href="javascript:toggle(7);">Show model output</a>
+  <div id="toggleText7" style="display: none">
+```{r olsmodeldiffprim2016, echo=FALSE, warning = FALSE, fig.align='center',fig.height=6,fig.width=8}
+model_formula = formula(trump_vote_change ~  total_ballots + #+ os_use_off
+                        muni.dense + pct_male + pct_black + inc_2015 + unemp_rate + pct_graduate + 
+                        age_med + pct_latino + pct_white + turnout_reg_feb + sameday_reg_prop +  rejected_absent_prop + counted_absent_prop + late_registrants + tch_prop + votes_perc_sanders_demprim + votes_perc_other_demprim + votes_perc_trump_reprim + votes_perc_other_reprim + oth.perc2012 + tch_prop_reprim_diff) #+ dem.perc2012)
+
+
+  # ols1 = lm(model_formula, data = model.o.df, na.action = na.exclude)
+   # summary(ols1)
+  # AIC(ols1)
+
+ols2 <- ols(model_formula, data=model.o.df, x=TRUE, y=TRUE)
+# print(ols2)
+# Second, the cluster-robust covariance is called
+cov <- robcov(ols2, cluster=model.o.df$county)
+print(cov)
+# print(cov$var)
+# AIC(cov)
+```
+
+</div>
+
+# Correlation issues - income, graduates, and population density
+It has been pointed out to me that since the use of the AVC Edge touchscreen is somewhat correlated with income and education level that in fact the observed touchscreen effect is in fact just the combined effect of these two variables. Indeed, we can see below this negative correlation (i.e. those areas with higher income or higher proportion of university graduates were less likely to vote for Trump).
+
+```{r correlationinc, echo=FALSE, warning = FALSE, fig.align='center',fig.height=6.5, fig.width=6}
+
+    corr.table = with(
+      model.o.df,
+      data.frame(
+        rep.change.perc,
+        muni.dense,
+        tch_prop,
+        inc_2015,
+        pct_graduate
+      )
+    )
+    colnames(corr.table) = abbreviate( colnames(corr.table), minlength = 16 )
+    correlationmatrix = cor(corr.table, use = "pairwise.complete.obs")
+    corrplot.all = corrplot(correlationmatrix, method = "number", type = "upper")
+
+```
+
+However, the linear regression models that I have featured in this post are designed to take in to account moderately correlating variables such as these and estimate their influence on the vote at the same time. So, variables (e.g. touchscreen use) that come out of the model as significant following inclusion in linear regression models should have a statistically significant effect despite the presence of correlation.
+
+The effect of touchscreen use at varying income and percentage graduate levels can be seen in the graphs and tables below. What we can see is that in both high and low income / university graduate / population density areas, the use of the Dominion AVC Edge systems seems to increase positively increase the change in Republican vote 2012 - 20216.
+
+## Per capita income
+<a id="displayText15" class = "button" href="javascript:toggle(15);">Hide graph and tables</a>
+  <div id="toggleText15" style="display: block">
+```{r olsmodelgraphsinc_2015, echo=FALSE, fig.align='center',fig.height=6,fig.width=8, message=FALSE, warning=FALSE}
+model.o.df$inc_levels = as.factor(model.o.df$inc_levels)
+model.o.df$tch_prop_split = as.factor(model.o.df$tch_prop_split)
+model.o.df$density_levels = as.factor(model.o.df$density_levels)
+
+          dem.tchuse.density.percvote = ggplot(data = model.o.df[                 !is.na(model.o.df$tch_prop)& !is.na(model.o.df$inc_levels),],
+                                                      aes(x = tch_prop,
+                                                             y = rep.change.perc, colour = inc_levels,
+                                                          group = inc_levels)) +
+                                                          #shape = factor(tch_model_off))) +
+    geom_point(alpha = 0.3,stroke = 2,pch = 21) +
+          geom_smooth(alpha = 0.5,size = 1) +
+        scale_y_continuous(name = "Republican vote change 2012 - 2016 (%)") +
+  scale_x_continuous(name = "Proportion of votes from use of Sequoia AVC Edge voting machines")+
+  # scale_fill_discrete(name = "
+  #                     Population density (ppl / km2) in municipality (log, people / km)") +
+            scale_colour_discrete(name = "Per capita income") +
+            facet_wrap(~inc_levels,nrow=1) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  dem.tchuse.density.percvote
+
+  tch.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop)  & !is.na(model.o.df$inc_levels) & !is.na(model.o.df$tch_prop_split),], melt(data.frame(inc_levels, density_levels,tch_prop_split,rep.change.perc)))
+  
+  #   tch.dem.change.cast.simple = dcast(tch.dem.change.melt, tch_prop_split ~variable, mean,na.rm=T)
+  # colnames(tch.dem.change.cast.simple) = c("AVC Edge machines used by > 25% of voters?","Change in Republican vote (%)")
+  # kable(tch.dem.change.cast.simple,digits = 1, format = "markdown",padding = 0, align = "c")
+  
+  tch.dem.change.cast = dcast(tch.dem.change.melt, inc_levels+tch_prop_split ~variable, mean,na.rm=T)
+      colnames(tch.dem.change.cast) = c("Per capita income 2011-2015","AVC Edge machines used by > 25% of voters?","Change in Republican vote (%)")
+kable(tch.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+```
+
+</div>
+
+## Percentage of university graduates
+<a id="displayText16" class = "button" href="javascript:toggle(16);">Hide graph and tables</a>
+  <div id="toggleText16" style="display: block">
+```{r olsmodelgraphsgraduate, echo=FALSE, fig.align='center',fig.height=6,fig.width=8, message=FALSE, warning=FALSE}
+model.o.df$grad_levels = as.factor(model.o.df$grad_levels)
+model.o.df$tch_prop_split = as.factor(model.o.df$tch_prop_split)
+model.o.df$density_levels = as.factor(model.o.df$density_levels)
+
+          dem.tchuse.density.percvote = ggplot(data = model.o.df[                 !is.na(model.o.df$tch_prop)& !is.na(model.o.df$grad_levels),],
+                                                      aes(x = tch_prop,
+                                                             y = rep.change.perc, colour = grad_levels,
+                                                          group = grad_levels)) +
+                                                          #shape = factor(tch_model_off))) +
+    geom_point(alpha = 0.3,stroke = 2,pch = 21) +
+          geom_smooth(alpha = 0.5,size = 1) +
+        scale_y_continuous(name = "Republican vote change 2012 - 2016 (%)") +
+  scale_x_continuous(name = "Proportion of votes from use of Sequoia AVC Edge voting machines")+
+  # scale_fill_discrete(name = "
+  #                     Population density (ppl / km2) in municipality (log, people / km)") +
+            scale_colour_discrete(name = "% university graduates") +
+            facet_wrap(~grad_levels,nrow=1) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  dem.tchuse.density.percvote
+
+  tch.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop) & !is.na(model.o.df$grad_levels) & !is.na(model.o.df$tch_prop_split),], melt(data.frame(grad_levels, density_levels,tch_prop_split,rep.change.perc)))
+  
+  #   tch.dem.change.cast.simple = dcast(tch.dem.change.melt, tch_prop_split ~variable, mean,na.rm=T)
+  # colnames(tch.dem.change.cast.simple) = c("AVC Edge machines used by > 25% of voters?","Change in Republican vote (%)")
+  # kable(tch.dem.change.cast.simple,digits = 1, format = "markdown",padding = 0, align = "c")
+  
+  tch.dem.change.cast = dcast(tch.dem.change.melt, grad_levels+tch_prop_split ~variable, mean,na.rm=T)
+      colnames(tch.dem.change.cast) = c("% university graduates","AVC Edge machines used by > 25% of voters?","Change in Republican vote (%)")
+kable(tch.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+```
+
+</div>
+
+## Municipality population density (people / km2)
+What is particularly striking about the change in Republican vote 2012-2016 in areas of different population density is that the effect of AVC Edge touchscreen appears to be stronger in areas of high density (i.e. towns / cities, with a population density of 200 people / km or greater). Were we to follow the hypothesis that the voting machines were directly manipulated - this makes sense - as hackers would likely target the areas where they get the most 'bang for their buck', namely densely-populated areas. I have not considered this finding further in this post, but any investigation should take into account that checking AVC Edge systems in densely-populated areas should be a priority.
+
+<a id="displayText17" class = "button" href="javascript:toggle(17);">Hide graph and tables</a>
+  <div id="toggleText17" style="display: block">
+```{r olsmodelgraphsdensity, echo=FALSE, fig.align='center',fig.height=6,fig.width=8, message=FALSE, warning=FALSE}
+model.o.df$grad_levels = as.factor(model.o.df$grad_levels)
+model.o.df$tch_prop_split = as.factor(model.o.df$tch_prop_split)
+model.o.df$density_levels = as.factor(model.o.df$density_levels)
+
+          dem.tchuse.density.percvote = ggplot(data = model.o.df[!is.na(model.o.df$density_levels) &                  !is.na(model.o.df$tch_prop)& !is.na(model.o.df$density_levels),],
+                                                      aes(x = tch_prop,
+                                                             y = rep.change.perc, colour = density_levels,
+                                                          group = density_levels)) +
+                                                          #shape = factor(tch_model_off))) +
+    geom_point(alpha = 0.3,stroke = 2,pch = 21) +
+          geom_smooth(alpha = 0.5,size = 1) +
+        scale_y_continuous(name = "Republican vote change 2012 - 2016 (%)") +
+  scale_x_continuous(name = "Proportion of votes from use of Sequoia AVC Edge voting machines")+
+  # scale_fill_discrete(name = "
+  #                     Population density (ppl / km2) in municipality (log, people / km)") +
+            scale_colour_discrete(name = "Population density (ppl / km2)") +
+            facet_wrap(~density_levels,nrow=1) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  dem.tchuse.density.percvote
+
+  tch.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop) & !is.na(model.o.df$density_levels) & !is.na(model.o.df$tch_prop_split),], melt(data.frame(density_levels, density_levels,tch_prop_split,rep.change.perc)))
+  
+  #   tch.dem.change.cast.simple = dcast(tch.dem.change.melt, tch_prop_split ~variable, mean,na.rm=T)
+  # colnames(tch.dem.change.cast.simple) = c("AVC Edge machines used by > 25% of voters?","Change in Republican vote (%)")
+  # kable(tch.dem.change.cast.simple,digits = 1, format = "markdown",padding = 0, align = "c")
+  
+  tch.dem.change.cast = dcast(tch.dem.change.melt, density_levels+tch_prop_split ~variable, mean,na.rm=T)
+      colnames(tch.dem.change.cast) = c("Population density (ppl / km2)","AVC Edge machines used by > 25% of voters?","Change in Republican vote (%)")
+kable(tch.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+```
+
+</div>
+
+# Conclusions
+
+In Wisconsin, votes for Trump in the 2016 Primary, and votes for Trump in the 2016 Presidential vote were significantly correlated with the proportion of voters using the Sequoia AVC Edge touchscreen system, a finding that held true even when considered alongside a multitude of demographic variables. The same touchscreen systems did not have the same effect in the 2012 Presidential election.
+
+The results suggest that if manipulation occurred, it was not by artificially increasing the number of people who voted for Trump via the AVC Edge systems (i.e. adding 'fake' voters), but instead by modifying the votes of genuine voters.
+
+These findings do not indicate with certainty that voting machines were manipulated in Wisconsin in 2016. They only indicate that further investigation is necessary, which requires analysing the specific AVC Edge voting machines used in Wisconsin in 2016 in the areas with the greatest increase in Republican vote from 2012. Only then can we know if security vulnerabilities were exploited to help Trump win in Wisconsin.

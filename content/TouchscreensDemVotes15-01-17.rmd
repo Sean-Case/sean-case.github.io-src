@@ -1,0 +1,344 @@
+---
+title: Wisconsin voting machines and the Democrat vote
+author: Sean Case
+date: 2017-01-10 20:05
+slug: wisconsinmuni
+category: 2016 Municipality vote analysis Wisconsin
+tags: election2016
+summary: * Considering the 2016 vote only in municipalities won by Democrats in 2012, touchscreen voting machine presence resulted in (on average) 7.8% lower votes for Hillary Clinton than in places where voting machines were not used.
+* Comparing the same voting municipalities in 2012 and 2016, those using voting machines had a 4.6% greater drop in Democrat vote in 2016 compared to those not using voting machines.
+* The presence of voting machines did not affect the Democrat vote in the 2012 presidential election, meaning that the voting machine effect was specific to the 2016 election.
+* It was not possible to determine which voting machine make/model was linked to the biggest drops in the vote for Democrats.
+* It is important to note that these results does not necessarily mean the voting machines were manipulated; further investigation is necessary to determine the cause of this effect.
+---
+  <script language="javascript">
+    function toggle(num) {
+      var ele = document.getElementById("toggleText" + num);
+      var text = document.getElementById("displayText" + num);
+      if(ele.style.display == "block") {
+        ele.style.display = "none";
+        text.innerHTML = "Show";
+      }
+      else {
+        ele.style.display = "block";
+        text.innerHTML = "Hide";
+      }
+   }
+  </script>
+
+<style type="text/css">
+.button {
+border: 1px solid black;
+padding: 2px;
+color: black;
+border-radius: 5px;
+background-color: Gainsboro;
+text-decoration: none;
+}
+
+.button:hover {
+color: darkgrey;
+cursor: pointer;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Custom css styling above from: https://support.rstudio.com/hc/en-us/community/posts/200655456-Custom-styling-when-knitting-html-
+
+setwd("C:\\Users\\s_cas\\Dropbox\\Perso\\2016 voting election county results\\Wisconsin\\Model Refinement Feb 2016\\")
+# setwd("https://github.com/Sean-Case/WisconsinElection2016")
+require(dplyr);require(plyr); require(ggplot2); require(nlme); require(car); require(reshape2); require(Hmisc);
+require(knitr)
+
+model.o.df = read.csv("modeldfward.o.csv")
+
+model.o.df$os.use = as.factor(model.o.df$os_use_off)
+model.o.df$tch.use = as.factor(model.o.df$tch_use_off)
+model.o.df$demwinner2012 = as.factor(model.o.df$demwinner2012)
+
+  model.o.df$tch_model_off[model.o.df$tch_model_off == "Dominion (Sequoia)/Command Central-Edge; ES&S Automark"] = "Dominion (Sequoia)/Command Central-Edge"
+  model.o.df$tch_make = as.factor(as.character(model.o.df$tch_model_off))
+
+  tch.model.o.df = subset(model.o.df, tch.use == 1)
+  tch.model.o.df[tch.model.o.df == -Inf] = NA
+  tch.model.o.df[tch.model.o.df == Inf] = NA
+    tch.model.o.df$tch_make = as.factor(as.character(tch.model.o.df$tch_model_off))
+
+  # tch.model.o.df$tch.make.grp.low = NA
+  # tch.model.o.df$tch.make.grp.low =
+  #   ifelse(tch.model.o.df$tch_make == "tch_makeelection_systems_software" | 
+  #           tch.model.o.df$tch_make == "tch_makesequoia_dominion","ess_or_seqdom","premier_diebold_dominion" )
+
+fin.formula = formula(democrat_votes.perc ~ tch.use*demwinner2012 + log(votes.tot2016) +
+                        tch.use + os.use + demwinner2012 +
+                        inc_2015 + unemp_rate + pct_male +
+                        age_med  + pct_white + pct_latino +
+                        pct_black + pct_hs)
+
+tch.dem2016.demwin.melt = with(model.o.df[!is.na(model.o.df$demwinner2012) &
+                                                      !is.na(model.o.df$tch.use),], melt(data.frame(tch.use,demwinner2012,democrat_votes.perc)))
+tch.dem.2016.melt = with(model.o.df[!is.na(model.o.df$tch.use),], melt(data.frame(tch.use,dem.change.perc)))
+os.dem2016.melt = with(model.o.df[!is.na(model.o.df$os.use),], melt(data.frame(os.use,democrat_votes.perc)))
+tch.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch.use),], melt(data.frame(tch.use,dem.change.perc)))
+tch.demwin.dem.change.melt = with(model.o.df[!is.na(model.o.df$demwinner2012) &
+                                                      !is.na(model.o.df$tch.use),], melt(data.frame(tch.use,demwinner2012,dem.change.perc)))
+tch.dem.change.tch.melt = with(tch.model.o.df[!is.na(tch.model.o.df$tch_make),], melt(data.frame(tch_make,dem.change.perc)))
+tch.dem.2012.orig.melt = with(model.o.df[!is.na(model.o.df$tch.use),], melt(data.frame(tch.use,dem.perc2012)))
+os.dem2012.orig.melt = with(model.o.df[!is.na(model.o.df$os.use),], melt(data.frame(os.use,dem.perc2012)))
+```
+
+*P.S. [An interactive carto map of the Republican vote in 2016](https://seancase.carto.com/builder/aef18204-cf53-11e6-af7f-0e3ff518bd15) accompanies this post. Go play with the data! And yes I realise it's weird to have a Republican vote map accompanying a Democrat vote discussion, but my internet connection is too bad where I am at the moment to change my Carto map, so here you are until I can. Also, the code underlying the analysis described here can be found at [Github](https://github.com/Sean-Case/WisconsinElection2016). The .csv files used in the models are named modeldfward.o.csv (original data) and modeldfward.r.csv (recount data).*
+
+# Did voting machines affect the 2016 Presidential elections in Wisconsin?
+A [previous analysis](https://sean-case.github.io/wisconsincounty/) of votes on a county level suggested that the Wisconsin 2016 vote may have been affected by the presence of voting machines (also known as touchscreen voting systems, or direct recording electronic voting machines) and optical scanners. However, at the time I had only the summarised votes of the 72 Wisconsin counties, so it was impossible to say for sure. However, in December, data of the municipality-level votes for Wisconsin became publicly available (1900 municipalities in total), as well as the voting data for the recount conducted in early December. Now we can attempt to address two important questions.
+
+
+*Did the presence of voting machines affect the Democrat or Republican votes in the 2016 elections?*
+
+*Did the recount change the effects of the voting machines or optical scanners suggested the first time around?*
+
+
+In the following analysis, the effect of the presence of voting machines / optical scanners on the Democrat presidential votes in 2016 and 2016 are compared against a number of county-level demographic variables, many provided by a very useful post about the 2016 election by [Thomas Cooley, Ben Griffy, and Peter Rupert at Economic Snapshot](https://econsnapshot.com/2016/12/06/electronic-voting-machines-and-the-election/), and some from David Greenwald (@davidegreenwald) and colleagues, who have also been [looking into the 2016 Wisconsin presidential election](https://docs.google.com/document/d/1BcJNx-Q3PYffy71XQxqGdYcM5gf7m16r8bgSQT16fi0/edit#).
+A note of caution: the outputs described here suggest that the presence of voting machines / optical scanners could be a PREDICTOR of an increased or decreased vote for Democrat as determined by the statistical model. We cannot know from this alone if the voting machines / optical scanners were manipulated in any way, it only suggests that further investigation is necessary to determine the cause of this effect.
+
+# 2016 original Democrat vote - effect of voting machines and optical scanners
+
+## Voting machines
+
+Voting machines decreased votes for democrats (a average reduction of ~4.6%); however this difference could be due to random variation (p > 0.05 for the stats nerds). But when considering municipalities won by the Democrats in 2012 (Obama) against those won by the Republicans (Romney), there was a statistically significant effect (i.e. extremely unlikely to be due to simple 'randomness' in votes). In 2012 Democrat-won municipalities the average vote was 48.7% for Hillary Clinton when voting machines were present compared to 40.9% when voting machines were not present, a difference of 7.8%. There was not a significant effect of voting machines in areas won by the Republicans in 2012; 31.1% voted for Hillary Clinton in areas without voting machines compared to 29.6% of voters in areas with voting machines. Click the button below to see the data and relevant graphs.
+
+<a id="displayText1" class = "button" href="javascript:toggle(1);">Hide graph and data</a>
+  <div id="toggleText1" style="display: block">
+```{r tchdemnow, echo=FALSE, warning = FALSE, fig.align='center'}
+tch.dem2016.demwin.cast = dcast(tch.dem2016.demwin.melt, demwinner2012+tch.use~variable, mean)
+  colnames(tch.dem2016.demwin.cast) = c( "Municipality won by Democrats in 2012","Use voting machines","Vote for Democrats in 2016 (%)")
+kable(tch.dem2016.demwin.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+
+dem.tchuse.demwin.percvote = ggplot(data = model.o.df[!is.na(model.o.df$demwinner2012) &
+                                                      !is.na(model.o.df$tch.use),], 
+                                                      aes(x = paste(demwinner2012,tch.use),
+                                                      y = democrat_votes.perc, fill = demwinner2012)) +
+  #geom_violin() +
+  geom_boxplot(width = 0.9, alpha = 0.8) +
+  scale_y_continuous(name = "Vote for Democrats in 2016 (%)") +
+  scale_x_discrete(name = "Left number: Democrat won in 2012 (0 = N, 1 = Y).\nRight number: voting machine presence (0 = N, 1 = Y)") +
+  scale_fill_discrete(name = "2012 winner", labels = c("Republican","Democrat"))
+dem.tchuse.demwin.percvote
+
+tch.dem.2016.cast = dcast(tch.dem.2016.melt, tch.use~variable, mean,na.rm=T)
+  colnames(tch.dem.2016.cast) = c("Use voting machines", "Vote for Democrats in 2016 (%)")
+kable(tch.dem.2016.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+```
+
+</div>
+
+## Optical scanners
+
+The presence of optical scanners did not significantly affect the Democrat vote; the slight observed increase could be attributed to random variation.
+
+<a id="displayText2" class = "button" href="javascript:toggle(2);">Show graph and data</a>
+  <div id="toggleText2" style="display: none">
+```{r osdem2016, echo=FALSE, warning = FALSE, fig.align='center'}
+dem.osuse.percvote = ggplot(data =  model.o.df[!is.na(model.o.df$os.use),], aes(x = os.use,y = democrat_votes.perc, fill = os.use)) +
+  #geom_violin() +
+  geom_boxplot(width = 0.9, alpha = 0.8) +
+  scale_y_continuous(name = "Vote for Democrats in 2016 (%)") +
+  scale_x_discrete(name = "Optical scanner presence (0 = N, 1 = Y)")+
+  scale_fill_discrete(name = "Use optical scanners", labels = c("No","Yes"))
+dem.osuse.percvote
+
+require(magrittr);require(dplyr)
+
+os.dem2016.cast= dcast(os.dem2016.melt, os.use~variable, mean)
+  colnames(os.dem2016.cast) = c("Use optical scanners", "Vote for Democrats in 2016 (%)")
+kable(os.dem2016.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+```
+
+</div>
+
+## Model summary - 2016 Democrat votes
+Below is the model output for the 2016 votes for Democrat, reflecting the outputs above. I won't try to explain the technical details of the model here, but I will leave it for statisticians to critique. P.S. I found the method to toggle code sections here: [here](http://stackoverflow.com/questions/34784121/interactively-show-hide-code-r-markdown-knitr-report)
+
+<a id="displayText3" class = "button" href="javascript:toggle(3);">Show model code</a>
+  <div id="toggleText3" style="display: none">
+```{r dem2016model, echo=FALSE, warning = FALSE, fig.align='center'}
+lmc = lmeControl(opt="optim")
+dem.vote.2016.orig.lme = lme(fixed = fin.formula,
+                             data = model.o.df, random = ~log(votes.tot2016) + demwinner2012|county, na.action=na.exclude, control = lmc, method = "REML")
+summary(dem.vote.2016.orig.lme)
+```
+
+</div>
+
+# Change in Democrat votes from 2012 to 2016
+
+## Effect of voting machines
+Municipalities without touchscreen voting machines voted on average 8.7% less for Democrat candidates in 2016 compared to 2012; however, in areas with voting machines this was 13.3% (4.6% difference). Therefore, the presence of voting machines resulted in a 4.6% additional drop in Democrat vote between 2012 and 2016. This means that voting machines behaved differently in 2016 compared to 2012; they had a greater negative effect in 2016.
+
+The change was similar whether the municipality was won by Democrats or Republicans in 2012. Vote % decreased in Republican-won municipalities by -7.6 in non-voting machine areas compared to -11.7 (4.1% difference) in voting machine areas, and in Democrat-won municipalities from -10.0 in non-voting machine areas to -15.8% (5.8%) in voting machine areas.
+
+<a id="displayText4" class = "button" href="javascript:toggle(4);">Hide graph and data</a>
+  <div id="toggleText4" style="display: block">
+```{r dem2012modeltch, echo=FALSE, warning = FALSE, fig.align='center'}
+    dem.tchuse.demwin.percvote = ggplot(data = model.o.df[!is.na(model.o.df$demwinner2012) &
+                                                      !is.na(model.o.df$tch.use),],
+                                                      aes(x = tch.use,
+                                                             y = dem.change.perc, fill = tch.use)) +
+    #geom_violin() +
+    geom_boxplot(width = 0.9, alpha = 0.8) +
+        scale_y_continuous(name = "Change in vote for Democrats from 2012 to 2016 (%)") +
+  scale_x_discrete(name = "Voting machine presence (0 = N, 1 = Y)")+
+  scale_fill_discrete(name = "Voting machine use", labels = c("No","Yes"))
+  dem.tchuse.demwin.percvote
+ 
+  tch.dem.change.cast = dcast(tch.dem.change.melt, tch.use~variable, mean,na.rm=T)
+      colnames(tch.dem.change.cast) = c("Use voting machines","Change in vote for Democrats from 2012 to 2016 (%)")
+kable(tch.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+  
+    tch.demwin.dem.change.cast = dcast(tch.demwin.dem.change.melt, demwinner2012+tch.use~variable, mean,na.rm=T)
+    colnames(tch.demwin.dem.change.cast) = c("Municipality won by Democrats in 2012","Use voting machines","Change in vote for Democrats from 2012 to 2016 (%)")
+kable(tch.demwin.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+```
+
+</div>
+
+Since the presence of optical scanners had no effect on the change in Democrat vote between 2012 and 2016, I have not discussed it further here.
+
+## Model output
+<a id="displayText5" class = "button" href="javascript:toggle(5);">Show model code</a>
+  <div id="toggleText5" style="display: none">
+```{r dem2012changemodel, echo=FALSE, warning = FALSE, fig.align='center'}
+  lmc = lmeControl(opt="optim")
+  dem.formula = update(fin.formula, dem.change.perc ~. - tch.use*demwinner2012 + tch.use +
+                         demwinner2012)
+  dem.formula
+
+  democrat.change.2016.orig.lme = lme(dem.formula, random = ~1+ log(votes.tot2016) + demwinner2012|county, na.action=na.exclude, control = lmc, method = "REML", data = model.o.df)
+  summary(democrat.change.2016.orig.lme)
+```
+
+</div>
+
+# Did the effect differ in terms of voting machine makes/models?
+*NOTE: The following analysis was conducted only on municipalities that used voting machines*
+
+In Wisconsin, voting machine makes are used. The most common is the [Sequoia/Dominion 'Edge'](https://www.verifiedvoting.org/resources/voting-equipment/sequoia/avc-edge/), which is used in 45 counties. The second most common is the [Premier/Diebold/Dominion 'Accuvote TSX'](https://www.verifiedvoting.org/resources/voting-equipment/premier-diebold/accuvote-tsx/), which is used in 13 counties. Finally, the [ES&S 'Ivotronic'](https://www.verifiedvoting.org/resources/voting-equipment/ess/ivotronic/) is in use in two counties. There are large differences in Democrat vote between the counties considered, so it is not reasonable to compare % Democrat vote in 2016 between counties and systems. Instead, here I look at the difference in Democrat vote in the same municipalities with these voting machines in 2012 and 2016.
+
+The below table and graph shows that the Premier Diebold Dominion Accuvote TSX reduced the Democrat vote by the least in 2016 compared to 2012 (-8.9%) compared to -13.7% and -15.5% for the other two voting machines. However, this difference was not statistically significant, and so could be attributed to random variation.
+
+<a id="displayText6" class = "button" href="javascript:toggle(6);">Hide graph and data</a>
+  <div id="toggleText6" style="display: block">
+```{r demchangemake, echo=FALSE, warning = FALSE, fig.align='center'}
+tch.dem.change.tch.cast = dcast(tch.dem.change.tch.melt, tch_make~variable, mean,na.rm=T)
+  colnames(tch.dem.change.tch.cast) = c("Voting machine make", "Change in vote for Democrats from 2012 to 2016 (%)")
+  tch.dem.change.tch.cast$`Voting machine make` =  c("Election Systems Software", "Premier Diebold Dominion","Sequioa Dominion")
+kable(tch.dem.change.tch.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+
+    dem.tchuse.percvote = ggplot(data = tch.model.o.df[!is.na(tch.model.o.df$tch_make),], aes(x = tch_make, y = dem.change.perc, fill = tch_make)) +
+    #geom_violin() +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+    geom_boxplot(width = 0.9, alpha = 0.8) +
+        scale_y_continuous(name = "Change in vote for Democrats from 2012 to 2016 (%)") +
+  scale_x_discrete(name = "", labels = c("Election Systems Software", "Premier Diebold Dominion","Sequioa Dominion")) +
+      scale_fill_discrete(name = "Voting machine make", labels = c("Election Systems Software", "Premier Diebold Dominion","Sequioa Dominion"))
+  dem.tchuse.percvote
+
+```
+
+</div>
+
+The model code underlying these findings are below:
+
+<a id="displayText7" class = "button" href="javascript:toggle(7);">Show model output</a>
+  <div id="toggleText7" style="display: none">
+```{r demchangemakemodel, echo=FALSE, warning = FALSE, fig.align='center'}
+   tch.formula = update(fin.formula, dem.change.perc ~. -tch.use*demwinner2012 +
+                         tch_make + demwinner2012)
+  tch.formula
+
+    lmc = lmeControl(opt="optim")
+   democrat.tch.2016.orig.lme = lme(tch.formula, random = ~log(votes.tot2016)|county, na.action=na.exclude,
+                                      control = lmc, method = "REML", data = tch.model.o.df)
+  summary(democrat.tch.2016.orig.lme)
+```
+
+</div>
+
+# Did voting machines have the same effect in 2012?
+
+NOTE: The following assumes that the same voting equipment was present in the same place in 2012 as in 2016, which may not have been the case everywhere.
+
+## Voting machines
+We can see from these results that voting machines and optical scanners had very different effects in 2012 and in 2016. voting machines had a very slight negative effect on the Democrat vote (-0.5%) in 2012, which could be attributed to random variation. Similarly, the difference in Democrat vote in voting machine municipalities won by Democrats in 2012 (58.6% reduced to 56.7% with voting machines, a 1.9% difference) was statistically insignificant and small compared to the result we saw in 2016 (a 7.8% drop in Democrat vote with voting machines present).
+
+<a id="displayText8" class = "button" href="javascript:toggle(8);">Hide graph and data</a>
+  <div id="toggleText8" style="display: block">
+```{r touchdem2012, echo=FALSE, warning = FALSE, fig.align='center'}
+    dem.tchuse.demwin.percvote = ggplot(data = model.o.df[!is.na(model.o.df$tch.use),], aes(x = tch.use,
+                                                             y = dem.perc2012, fill = tch.use)) +
+    #geom_violin() +
+    geom_boxplot(width = 0.9, alpha = 0.8) +
+        scale_y_continuous(name = "Vote for Democrats in 2012 (%)") +
+  scale_x_discrete(name = "Voting machine presence (0 = N, 1 = Y)")+
+  scale_fill_discrete(name = "Use voting machines", labels = c("No","Yes"))
+  dem.tchuse.demwin.percvote
+  
+  tch.dem.2012.orig.cast = dcast(tch.dem.2012.orig.melt, tch.use~variable, mean,na.rm=T)
+  colnames(tch.dem.2012.orig.cast) = c("Use voting machines", "Vote for Democrats in 2012 (%)")
+  kable(tch.dem.2012.orig.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+```
+
+</div>
+
+## Optical scanners
+In 2012, optical scanner presences had a negative effect on Democrat vote (linked to a drop in Democrat vote percentage from 49.5% to 46.2%). In comparison, in 2016 there was no effect of optical scanners (35.0% and 36.9% Democrat vote in counties with and without counties respectively, which was not statistically significant). 
+
+<a id="displayText9" class = "button" href="javascript:toggle(9);">Show graph and data</a>
+  <div id="toggleText9" style="display: none">
+```{r dem2012modelgraph, echo=FALSE, warning = FALSE, fig.align='center'}
+ dem.osuse.2012.origpercvote = ggplot(data = model.o.df[!is.na(model.o.df$os.use),], aes(x = os.use,y = dem.perc2012, fill = os.use)) +
+    #geom_violin() +
+    geom_boxplot(width = 0.9, alpha = 0.8) +
+     scale_y_continuous(name = "Vote for Democrats in 2012 (%)") +
+  scale_x_discrete(name = "Optical scanner presence (0 = N, 1 = Y)") +
+  scale_fill_discrete(name = "Use optical scanners", labels = c("No","Yes"))
+  dem.osuse.2012.origpercvote
+  
+      os.dem2012.orig.cast= dcast(os.dem2012.orig.melt, os.use~variable, mean,na.rm=T)
+  colnames(os.dem2012.orig.cast) = c("Use optical scanners", "Vote for Democrats in 2012 (%)")
+kable(os.dem2012.orig.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+
+# vote2012cut = cut2(model.o.df$votes.tot2012, m = 1, g = 3,digits = 5)
+  # os.dem2012.orig.demwin.melt = with(model.o.df, melt(data.frame(os.use,vote2012cut,dem.perc2012)))
+  # os.dem2012.orig.demwin.cast= dcast(os.dem2012.orig.demwin.melt, os.use +vote2012cut~variable, mean,na.rm=T); os.dem2012.orig.demwin.cast
+```
+
+</div>
+
+## Model code
+
+<a id="displayText10" class="button" href="javascript:toggle(10);">Show model output</a>
+  <div id="toggleText10" style="display: none">
+```{r dem2012model, echo=FALSE, warning = FALSE, fig.align='center'}
+lmc = lmeControl(opt="optim")
+dem2012.formula = update(fin.formula, dem.perc2012 ~. -demwinner2012 - tch.use*demwinner2012 - os.use*demwinner2012 + tch.use + os.use - log(votes.tot2016) + log(votes.tot2012) +os.use*log(votes.tot2012))
+  dem2012.formula
+
+  democrat.2012.orig.lme = lme(dem2012.formula, random = ~1|county, na.action=na.exclude,
+                               control = lmc, method = "REML", data = model.o.df)
+  summary(democrat.2012.orig.lme)
+```
+
+</div>
+
+# Did the recount change these findings?
+In a word, no (outputs on request). The recount did not significantly change any of the outputs of the models considered in this analysis, and voting machine presence was still a significant predictor of the 2016 Democrat vote. This is not surprising, as any manipulation of the voting machines could have impacted the result before the ballots/output vote data was produced from the voting machine.
+
+# Conclusions
+This analysis compared voting systems alongside a range of demographic variables. The presence of touchscreen voting machines in a voting municipality in Wisconsin in the 2016 Presidential election reduced the Democrat vote, and effect that did not exist in the 2012 election. In municipalities won by Democrats in 2012, the vote was 8% lower on average in places where touchscreen voting systems were present. The vote for Democrats dropped across the vast majority of municipalities in Wisconsin in 2016 compared to 2012; however, the presence of touchscreen voting systems was linked to an additional drop in 4.6%. The recount had no effect on these findings.
+
+So, what can we do with this information? Well I should say that despite the strong statistical evidence provided here, correlation does not always imply causation... We need a sensible reason to explain why the presence of touchscreen voting systems caused such effects. That is something that I cannot provide. The voting machine software and hardware need be investigated to ensure - if there is any relevant data trail - that no irregularities occured during the voter input, and also that there are no security vulnerabilities to hacking.
+
+In the current political context I very much doubt that such actions will be taken in the near future, but well, the first step in solving a problem is identifying the problem. Hopefully one day a full investigation of voting systems will take place in the US, and that people will once more have confidence in the integrity of the electoral system.

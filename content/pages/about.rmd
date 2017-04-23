@@ -1,0 +1,9 @@
+---
+title: About
+author: Sean Case
+date: 2016-11-24 18:24
+slug: about
+category: About
+tags: about
+---
+I am an ex-University academic (only up to postdoctoral level); I specialised in Environmental Science during my PhD and Post Doc. Who knows, maybe I will go back to that one day. Alongside this and in the meantime I have been working on spatial analysis and data science projects. As well as the vote analysis projects on this website, I have working with Bellingcat on open source investigation projects concerning Ukraine and Russia such as [this one](https://www.bellingcat.com/news/uk-and-europe/2016/12/21/russian-artillery-strikes-against-ukraine/) and [this one](https://www.bellingcat.com/news/uk-and-europe/2015/02/17/origin-of-artillery-attacks/). I don't know exactly where my career will lead in the near term, but long term I am interested in working in data science and/or spatial analysis.
