@@ -38,12 +38,21 @@
 		<h1>Influence of Sequoia AVC Edge touchscreen use on the Wisconsin Trump vote</h1>
 		
 <div class="metadata">
-  <time datetime="2017-04-23T22:00:00+03:00" pubdate>Sun 23 April 2017</time>
+  <time datetime="2017-04-23T22:00:00+01:00" pubdate>Sun 23 April 2017</time>
     <address class="vcard author">
       by <a class="url fn" href="/author/sean-case.html">Sean Case</a>
     </address>
   in <a href="/category/avc-edge-systems-and-trump.html">AVC Edge systems and Trump</a>
-<p class="tags">tagged <a href="/tag/election2016.html">election2016</a></p></div>		
+<p class="tags">tagged <a href="/tag/election2016.html">election2016</a></p></div>	
+	<!-- Load Facebook SDK for JavaScript -->
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+var js, fjs = d.getElementsByTagName(s)[0];
+if (d.getElementById(id)) return;
+js = d.createElement(s); js.id = id;
+js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.9";
+fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>		
 		<ul>
 <li>The proportion of votes coming from use of the Sequoia AVC Edge electronic voting system in Wisconsin was significantly correlated with increases in vote % for Trump in the 2016 Republican primary and the 2016 Presidential vote. This was not the case for the 2012 Presidential contest.</li>
 <li>This finding held true even when the use of AVC Edge voting machines was considered alongside a range of municipality-level demographic and voting method variables.</li>
@@ -509,7 +518,7 @@ cursor: pointer;
 <span class="cp">##</span><span class="c">                 pct_black                  inc_2015 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                         3                         3 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                unemp_rate              oth.perc2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         3                         2 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                         3                         1 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                   age_med                pct_latino </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                         3                         3 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                 pct_white          turnout_reg_2012 </span><span class="x"></span>
@@ -528,36 +537,36 @@ cursor: pointer;
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                                 Model Likelihood     Discrimination    </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                                    Ratio Test           Indexes        </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Obs                   1689     LR chi2    341.71    R2       0.183    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sigma               9.8250     d.f.           16    R2 adj   0.175    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  d.f.                  1672     Pr(&gt; chi2) 0.0000    g        4.713    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Obs                   1690     LR chi2    341.71    R2       0.183    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  sigma               9.8227     d.f.           16    R2 adj   0.175    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  d.f.                  1673     Pr(&gt; chi2) 0.0000    g        4.711    </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Cluster onmodel.o.df$county                                           </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Clusters                68                                            </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Residuals</span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">       Min       1Q   Median       3Q      Max </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  -42.8441  -6.3513   0.3033   6.6658  37.1214 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  -42.8419  -6.3425   0.3067   6.6564  37.1374 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                            Coef     S.E.    t     Pr(&gt;|t|)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Intercept                   4.2076  7.5102  0.56 0.5754  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Intercept                   4.1605  7.5138  0.55 0.5798  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  total_ballots_2012          0.0000  0.0000  2.27 0.0236  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  muni.dense                 -0.0085  0.0018 -4.73 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_male                    0.1254  0.0840  1.49 0.1354  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_black                  -0.1885  0.1403 -1.34 0.1790  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  inc_2015                    0.0004  0.0002  2.32 0.0204  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  unemp_rate                 -0.2103  0.1491 -1.41 0.1586  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  oth.perc2012               -0.7181  0.3270 -2.20 0.0282  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  age_med                    -0.0604  0.0782 -0.77 0.4396  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_latino                  0.0784  0.0659  1.19 0.2341  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_white                   0.3155  0.0464  6.80 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  turnout_reg_2012            8.5690  5.7502  1.49 0.1364  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_graduate               -0.1686  0.0666 -2.53 0.0115  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  rejected_absent_prop_2012 -25.6751 86.3524 -0.30 0.7663  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  counted_absent_prop_2012   11.6299  5.3983  2.15 0.0314  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  late_registrants_2012      -0.3751  2.2591 -0.17 0.8681  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_2012              -0.8991  2.0730 -0.43 0.6645  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_male                    0.1248  0.0839  1.49 0.1369  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_black                  -0.1881  0.1401 -1.34 0.1798  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  inc_2015                    0.0004  0.0002  2.32 0.0205  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  unemp_rate                 -0.2095  0.1492 -1.40 0.1605  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  oth.perc2012               -0.7170  0.3270 -2.19 0.0285  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  age_med                    -0.0603  0.0782 -0.77 0.4409  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_latino                  0.0781  0.0658  1.19 0.2357  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_white                   0.3156  0.0464  6.80 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  turnout_reg_2012            8.6550  5.7448  1.51 0.1321  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_graduate               -0.1687  0.0666 -2.53 0.0114  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  rejected_absent_prop_2012 -25.4646 86.3718 -0.29 0.7682  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  counted_absent_prop_2012   11.6412  5.3972  2.16 0.0312  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  late_registrants_2012      -0.3745  2.2593 -0.17 0.8684  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  tch_prop_2012              -0.9042  2.0721 -0.44 0.6626  </span><span class="x"></span>
 <span class="cp">##</span><span class="c"> </span><span class="x"></span>
 </pre></div>
 
@@ -631,7 +640,7 @@ cursor: pointer;
 <span class="cp">##</span><span class="c">                  pct_black                   inc_2015 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                          3                          3 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                 unemp_rate               oth.perc2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          2 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                          3                          1 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                    age_med                 pct_latino </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                          3                          3 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                  pct_white            turnout_reg_feb </span><span class="x"></span>
@@ -647,9 +656,9 @@ cursor: pointer;
 <span class="cp">##</span><span class="c">   votes_perc_other_demprim    votes_perc_trump_reprim </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                         37                         16 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">    votes_perc_other_reprim    tch_prop_2012_2016_diff </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         16                          9 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                         16                         12 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">       tch_prop_reprim_diff </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         27 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                         30 </span><span class="x"></span>
 <span class="cp">##</span><span class="c"> </span><span class="x"></span>
 <span class="cp">##</span><span class="c"> Linear Regression Model</span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
@@ -658,44 +667,44 @@ cursor: pointer;
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                                  Model Likelihood     Discrimination    </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                                     Ratio Test           Indexes        </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Obs                   1622     LR chi2    3445.63    R2       0.880    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sigma               3.7220     d.f.            24    R2 adj   0.879    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  d.f.                  1597     Pr(&gt; chi2)  0.0000    g       11.053    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Obs                   1623     LR chi2    3446.64    R2       0.880    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  sigma               3.7222     d.f.            24    R2 adj   0.879    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  d.f.                  1598     Pr(&gt; chi2)  0.0000    g       11.048    </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Cluster onmodel.o.df$county                                            </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Clusters                68                                             </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Residuals</span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">        Min        1Q    Median        3Q       Max </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  -18.93312  -2.09850  -0.04549   2.26017  16.22290 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  -18.95267  -2.10061  -0.05705   2.24580  16.17898 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                             Coef    S.E.   t      Pr(&gt;|t|)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Intercept                  84.7690 5.2843  16.04 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  total_ballots               0.0000 0.0000  -0.70 0.4824  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  muni.dense                 -0.0019 0.0005  -3.60 0.0003  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_male                    0.0954 0.0335   2.85 0.0045  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_black                  -0.0046 0.0611  -0.08 0.9394  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  inc_2015                   -0.0001 0.0000  -3.97 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  unemp_rate                  0.0223 0.0517   0.43 0.6658  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  oth.perc2012               -0.5640 0.1808  -3.12 0.0018  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  age_med                     0.0132 0.0244   0.54 0.5889  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_latino                  0.0149 0.0349   0.43 0.6686  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_white                   0.0903 0.0198   4.57 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  turnout_reg_feb             2.3206 3.5413   0.66 0.5124  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sameday_reg_prop            3.7664 1.8874   2.00 0.0462  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop                    2.0138 0.5194   3.88 0.0001  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_graduate               -0.1969 0.0214  -9.22 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  rejected_absent_prop       -7.2134 4.9624  -1.45 0.1463  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  counted_absent_prop        -8.2280 1.7493  -4.70 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  dem.perc2012               -0.8671 0.0289 -30.03 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  late_registrants            5.3202 9.0004   0.59 0.5545  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_sanders_demprim -0.0372 0.0202  -1.84 0.0661  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_other_demprim    0.2439 0.1484   1.64 0.1004  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_trump_reprim     0.1944 0.0209   9.32 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_other_reprim    -0.0804 0.0783  -1.03 0.3044  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_2012_2016_diff     0.6765 0.8088   0.84 0.4030  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_reprim_diff       -1.3763 0.6470  -2.13 0.0336  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Intercept                  84.7252 5.3044  15.97 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  total_ballots               0.0000 0.0000  -0.71 0.4804  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  muni.dense                 -0.0019 0.0005  -3.57 0.0004  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_male                    0.0957 0.0336   2.85 0.0044  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_black                  -0.0048 0.0609  -0.08 0.9378  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  inc_2015                   -0.0001 0.0000  -4.01 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  unemp_rate                  0.0230 0.0516   0.44 0.6564  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  oth.perc2012               -0.5648 0.1810  -3.12 0.0018  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  age_med                     0.0135 0.0245   0.55 0.5809  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_latino                  0.0147 0.0349   0.42 0.6727  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_white                   0.0903 0.0197   4.58 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  turnout_reg_feb             2.2869 3.5509   0.64 0.5196  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  sameday_reg_prop            3.6738 1.8840   1.95 0.0514  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  tch_prop                    2.0966 0.5078   4.13 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_graduate               -0.1974 0.0214  -9.24 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  rejected_absent_prop       -6.8436 4.9022  -1.40 0.1629  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  counted_absent_prop        -8.1916 1.7550  -4.67 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  dem.perc2012               -0.8668 0.0289 -29.99 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  late_registrants            5.3279 8.9693   0.59 0.5526  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  votes_perc_sanders_demprim -0.0365 0.0203  -1.80 0.0719  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  votes_perc_other_demprim    0.2454 0.1479   1.66 0.0974  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  votes_perc_trump_reprim     0.1942 0.0209   9.29 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  votes_perc_other_reprim    -0.0840 0.0790  -1.06 0.2878  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  tch_prop_2012_2016_diff     0.0143 0.3351   0.04 0.9660  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  tch_prop_reprim_diff       -1.3018 0.6493  -2.00 0.0452  </span><span class="x"></span>
 <span class="cp">##</span><span class="c"> </span><span class="x"></span>
 </pre></div>
 
@@ -769,7 +778,7 @@ cursor: pointer;
 <span class="cp">##</span><span class="c">                  pct_black                   inc_2015 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                          3                          3 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                 unemp_rate               oth.perc2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          2 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                          3                          1 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                    age_med                 pct_latino </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                          3                          3 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                  pct_white            turnout_reg_feb </span><span class="x"></span>
@@ -785,9 +794,9 @@ cursor: pointer;
 <span class="cp">##</span><span class="c">   votes_perc_other_demprim    votes_perc_trump_reprim </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                         37                         16 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">    votes_perc_other_reprim    tch_prop_2012_2016_diff </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         16                          9 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                         16                         12 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">       tch_prop_reprim_diff </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         27 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                         30 </span><span class="x"></span>
 <span class="cp">##</span><span class="c"> </span><span class="x"></span>
 <span class="cp">##</span><span class="c"> Linear Regression Model</span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
@@ -796,44 +805,44 @@ cursor: pointer;
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                                  Model Likelihood     Discrimination    </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                                     Ratio Test           Indexes        </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Obs                   1622     LR chi2    1937.73    R2       0.697    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sigma               3.7220     d.f.            24    R2 adj   0.693    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  d.f.                  1597     Pr(&gt; chi2)  0.0000    g        6.055    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Obs                   1623     LR chi2    1937.81    R2       0.697    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  sigma               3.7222     d.f.            24    R2 adj   0.692    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  d.f.                  1598     Pr(&gt; chi2)  0.0000    g        6.051    </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Cluster onmodel.o.df$county                                            </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Clusters                68                                             </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Residuals</span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">        Min        1Q    Median        3Q       Max </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  -18.93312  -2.09850  -0.04549   2.26017  16.22290 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  -18.95267  -2.10061  -0.05705   2.24580  16.17898 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                             Coef     S.E.   t     Pr(&gt;|t|)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Intercept                  -15.2310 5.2843 -2.88 0.0040  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  total_ballots                0.0000 0.0000 -0.70 0.4824  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  muni.dense                  -0.0019 0.0005 -3.60 0.0003  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_male                     0.0954 0.0335  2.85 0.0045  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_black                   -0.0046 0.0611 -0.08 0.9394  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  inc_2015                    -0.0001 0.0000 -3.97 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  unemp_rate                   0.0223 0.0517  0.43 0.6658  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  oth.perc2012                 0.4360 0.1808  2.41 0.0160  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  age_med                      0.0132 0.0244  0.54 0.5889  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_latino                   0.0149 0.0349  0.43 0.6686  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_white                    0.0903 0.0198  4.57 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  turnout_reg_feb              2.3206 3.5413  0.66 0.5124  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sameday_reg_prop             3.7664 1.8874  2.00 0.0462  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop                     2.0138 0.5194  3.88 0.0001  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_graduate                -0.1969 0.0214 -9.22 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  rejected_absent_prop        -7.2134 4.9624 -1.45 0.1463  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  counted_absent_prop         -8.2280 1.7493 -4.70 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  dem.perc2012                 0.1329 0.0289  4.60 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  late_registrants             5.3202 9.0004  0.59 0.5545  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_sanders_demprim  -0.0372 0.0202 -1.84 0.0661  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_other_demprim     0.2439 0.1484  1.64 0.1004  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_trump_reprim      0.1944 0.0209  9.32 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_other_reprim     -0.0804 0.0783 -1.03 0.3044  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_2012_2016_diff      0.6765 0.8088  0.84 0.4030  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_reprim_diff        -1.3763 0.6470 -2.13 0.0336  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Intercept                  -15.2748 5.3044 -2.88 0.0040  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  total_ballots                0.0000 0.0000 -0.71 0.4804  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  muni.dense                  -0.0019 0.0005 -3.57 0.0004  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_male                     0.0957 0.0336  2.85 0.0044  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_black                   -0.0048 0.0609 -0.08 0.9378  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  inc_2015                    -0.0001 0.0000 -4.01 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  unemp_rate                   0.0230 0.0516  0.44 0.6564  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  oth.perc2012                 0.4352 0.1810  2.40 0.0163  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  age_med                      0.0135 0.0245  0.55 0.5809  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_latino                   0.0147 0.0349  0.42 0.6727  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_white                    0.0903 0.0197  4.58 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  turnout_reg_feb              2.2869 3.5509  0.64 0.5196  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  sameday_reg_prop             3.6738 1.8840  1.95 0.0514  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  tch_prop                     2.0966 0.5078  4.13 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_graduate                -0.1974 0.0214 -9.24 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  rejected_absent_prop        -6.8436 4.9022 -1.40 0.1629  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  counted_absent_prop         -8.1916 1.7550 -4.67 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  dem.perc2012                 0.1332 0.0289  4.61 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  late_registrants             5.3279 8.9693  0.59 0.5526  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  votes_perc_sanders_demprim  -0.0365 0.0203 -1.80 0.0719  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  votes_perc_other_demprim     0.2454 0.1479  1.66 0.0974  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  votes_perc_trump_reprim      0.1942 0.0209  9.29 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  votes_perc_other_reprim     -0.0840 0.0790 -1.06 0.2878  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  tch_prop_2012_2016_diff      0.0143 0.3351  0.04 0.9660  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  tch_prop_reprim_diff        -1.3018 0.6493 -2.00 0.0452  </span><span class="x"></span>
 <span class="cp">##</span><span class="c"> </span><span class="x"></span>
 </pre></div>
 
@@ -917,7 +926,7 @@ cursor: pointer;
 <span class="cp">##</span><span class="c">  counted_absent_prop_reprim     late_registrants_reprim </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                          28                          28 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                dem.perc2012                oth.perc2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                           1                           2 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                           1                           1 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">             tch_prop_reprim </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                          21 </span><span class="x"></span>
 <span class="cp">##</span><span class="c"> </span><span class="x"></span>
@@ -928,44 +937,44 @@ cursor: pointer;
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                                  Model Likelihood     Discrimination    </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                                     Ratio Test           Indexes        </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Obs                   1651     LR chi2    1057.79    R2       0.473    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sigma               7.6167     d.f.            18    R2 adj   0.467    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  d.f.                  1632     Pr(&gt; chi2)  0.0000    g        7.715    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Obs                   1652     LR chi2    1058.35    R2       0.473    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  sigma               7.6147     d.f.            18    R2 adj   0.467    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  d.f.                  1633     Pr(&gt; chi2)  0.0000    g        7.712    </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Cluster onmodel.o.df$county                                            </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Clusters                68                                             </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Residuals</span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">      Min      1Q  Median      3Q     Max </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  -27.270  -4.984  -0.127   4.743  30.632 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  -27.271  -4.981  -0.127   4.731  30.628 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                              Coef    S.E.    t     Pr(&gt;|t|)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Intercept                   19.7247  8.6959  2.27 0.0234  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  total_ballots_reprim        -0.0001  0.0001 -0.67 0.4999  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Intercept                   19.7429  8.6934  2.27 0.0233  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  total_ballots_reprim        -0.0001  0.0001 -0.68 0.4973  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  muni.dense                  -0.0085  0.0013 -6.59 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_male                     0.0794  0.0759  1.05 0.2957  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_black                   -0.1456  0.1152 -1.26 0.2064  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  inc_2015                    -0.0003  0.0001 -5.02 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  unemp_rate                   0.3771  0.0881  4.28 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  age_med                      0.3634  0.0551  6.60 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_latino                  -0.0557  0.0625 -0.89 0.3732  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_white                    0.0130  0.0465  0.28 0.7798  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  turnout_perc_reprim         -0.0524  0.0071 -7.42 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sameday_reg_prop_reprim      0.1457  3.8878  0.04 0.9701  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_graduate                -0.2244  0.0493 -4.55 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  rejected_absent_prop_reprim  6.1457 15.5326  0.40 0.6924  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  counted_absent_prop_reprim   1.7427  3.1851  0.55 0.5844  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  late_registrants_reprim      2.0364 13.6786  0.15 0.8817  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  dem.perc2012                 0.2653  0.0614  4.32 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  oth.perc2012                 1.0585  0.3021  3.50 0.0005  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_reprim              2.5166  1.2726  1.98 0.0482  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_male                     0.0792  0.0759  1.04 0.2974  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_black                   -0.1452  0.1152 -1.26 0.2078  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  inc_2015                    -0.0003  0.0001 -5.03 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  unemp_rate                   0.3776  0.0881  4.29 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  age_med                      0.3634  0.0550  6.60 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_latino                  -0.0560  0.0625 -0.89 0.3711  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_white                    0.0131  0.0465  0.28 0.7790  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  turnout_perc_reprim         -0.0523  0.0071 -7.41 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  sameday_reg_prop_reprim      0.1411  3.8872  0.04 0.9711  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_graduate                -0.2245  0.0493 -4.56 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  rejected_absent_prop_reprim  6.0516 15.5489  0.39 0.6972  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  counted_absent_prop_reprim   1.7741  3.1865  0.56 0.5778  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  late_registrants_reprim      2.1830 13.6630  0.16 0.8731  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  dem.perc2012                 0.2652  0.0614  4.32 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  oth.perc2012                 1.0594  0.3021  3.51 0.0005  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  tch_prop_reprim              2.5120  1.2713  1.98 0.0483  </span><span class="x"></span>
 <span class="cp">##</span><span class="c"> </span><span class="x"></span>
 </pre></div>
 
 
 <div class="highlight"><pre><span></span>##     d.f. 
-## 11410.43
+## 11416.45
 </pre></div>
 
 
@@ -1052,9 +1061,9 @@ cursor: pointer;
 <span class="cp">##</span><span class="c">   votes_perc_other_demprim    votes_perc_trump_reprim </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                         37                         16 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">    votes_perc_other_reprim               oth.perc2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         16                          2 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                         16                          1 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">       tch_prop_reprim_diff </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         27 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                         30 </span><span class="x"></span>
 <span class="cp">##</span><span class="c"> </span><span class="x"></span>
 <span class="cp">##</span><span class="c"> Linear Regression Model</span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
@@ -1063,42 +1072,42 @@ cursor: pointer;
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                                  Model Likelihood     Discrimination    </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                                     Ratio Test           Indexes        </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Obs                   1622     LR chi2    1608.02    R2       0.629    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sigma               8.5552     d.f.            22    R2 adj   0.624    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  d.f.                  1599     Pr(&gt; chi2)  0.0000    g       12.287    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Obs                   1623     LR chi2    1608.49    R2       0.629    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  sigma               8.5540     d.f.            22    R2 adj   0.624    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  d.f.                  1600     Pr(&gt; chi2)  0.0000    g       12.282    </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Cluster onmodel.o.df$county                                            </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Clusters                68                                             </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  Residuals</span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">      Min      1Q  Median      3Q     Max </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  -41.663  -5.149   1.019   5.925  25.425 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  -41.665  -5.144   1.022   5.922  25.506 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                             Coef     S.E.    t      Pr(&gt;|t|)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Intercept                   26.1396  9.0560   2.89 0.0039  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  total_ballots                0.0000  0.0000   0.47 0.6383  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  muni.dense                  -0.0107  0.0012  -9.18 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_male                     0.1328  0.0721   1.84 0.0656  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_black                   -0.1797  0.1497  -1.20 0.2299  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  inc_2015                     0.0000  0.0001  -0.06 0.9556  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  unemp_rate                  -0.0196  0.1208  -0.16 0.8709  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_graduate                -0.3687  0.0585  -6.31 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  age_med                      0.0414  0.0721   0.57 0.5657  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_latino                   0.0751  0.0551   1.36 0.1729  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_white                    0.3200  0.0459   6.98 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  turnout_reg_feb             19.0407  6.3064   3.02 0.0026  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sameday_reg_prop            -0.0840  4.4510  -0.02 0.9849  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  rejected_absent_prop       -13.8914 12.5407  -1.11 0.2682  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  counted_absent_prop         -2.0926  4.8556  -0.43 0.6666  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  late_registrants            -7.7249 14.5229  -0.53 0.5949  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop                     2.1728  1.8352   1.18 0.2366  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_sanders_demprim  -0.1207  0.0727  -1.66 0.0974  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_other_demprim     0.9233  0.2687   3.44 0.0006  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Intercept                   26.2091  9.0767   2.89 0.0039  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  total_ballots                0.0000  0.0000   0.46 0.6448  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  muni.dense                  -0.0107  0.0012  -9.21 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_male                     0.1321  0.0720   1.84 0.0666  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_black                   -0.1790  0.1497  -1.20 0.2320  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  inc_2015                     0.0000  0.0001  -0.06 0.9541  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  unemp_rate                  -0.0185  0.1210  -0.15 0.8782  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_graduate                -0.3689  0.0585  -6.30 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  age_med                      0.0415  0.0721   0.58 0.5649  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_latino                   0.0747  0.0551   1.36 0.1750  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_white                    0.3202  0.0459   6.98 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  turnout_reg_feb             19.0059  6.3260   3.00 0.0027  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  sameday_reg_prop            -0.0623  4.4502  -0.01 0.9888  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  rejected_absent_prop       -13.4013 12.4570  -1.08 0.2822  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  counted_absent_prop         -2.0931  4.8525  -0.43 0.6663  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  late_registrants            -7.6312 14.5161  -0.53 0.5992  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  tch_prop                     2.1653  1.8347   1.18 0.2381  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  votes_perc_sanders_demprim  -0.1210  0.0728  -1.66 0.0966  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  votes_perc_other_demprim     0.9226  0.2688   3.43 0.0006  </span><span class="x"></span>
 <span class="cp">##</span><span class="c">  votes_perc_trump_reprim     -1.1604  0.0643 -18.04 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_other_reprim     -0.9461  0.1964  -4.82 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  oth.perc2012                -0.0277  0.3098  -0.09 0.9288  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_reprim_diff        -4.3604  1.5150  -2.88 0.0041  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  votes_perc_other_reprim     -0.9457  0.1964  -4.82 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  oth.perc2012                -0.0267  0.3101  -0.09 0.9313  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  tch_prop_reprim_diff        -4.2998  1.5182  -2.83 0.0047  </span><span class="x"></span>
 <span class="cp">##</span><span class="c"> </span><span class="x"></span>
 </pre></div>
 
@@ -1199,24 +1208,24 @@ cursor: pointer;
 </thead>
 <tbody>
 <tr>
-<td align="center">50 - 200</td>
-<td align="center">No</td>
-<td align="center">2.8</td>
-</tr>
-<tr>
-<td align="center">50 - 200</td>
-<td align="center">Yes</td>
-<td align="center">13.0</td>
-</tr>
-<tr>
-<td align="center">&lt; 50</td>
+<td align="center">&lt; Fifty</td>
 <td align="center">No</td>
 <td align="center">5.7</td>
 </tr>
 <tr>
-<td align="center">&lt; 50</td>
+<td align="center">&lt; Fifty</td>
 <td align="center">Yes</td>
 <td align="center">10.5</td>
+</tr>
+<tr>
+<td align="center">Fifty - two hundred</td>
+<td align="center">No</td>
+<td align="center">2.8</td>
+</tr>
+<tr>
+<td align="center">Fifty - two hundred</td>
+<td align="center">Yes</td>
+<td align="center">13.0</td>
 </tr>
 <tr>
 <td align="center">Two hundred +</td>
@@ -1240,9 +1249,18 @@ cursor: pointer;
 	</article>
 
     <p>
-	<a href="https://twitter.com/share" class="twitter-share-button" data-via="" data-lang="en" data-size="large" data-related="">Tweet</a>
+	<a href="https://twitter.com/intent/tweet" class="twitter-share-button" data-via="" data-lang="en" data-size="large" data-related="">Tweet</a>
 	<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 	</p>
+	
+	<p>
+	<!-- Your share button code -->
+<div class="fb-like"
+data-href="https://sean-case.github.io/avcedgetrump.html"
+data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true">
+</div>
+	</p>
+	
 
 	<div class="comments">
 	<h2>Comments !</h2>
@@ -1267,6 +1285,7 @@ cursor: pointer;
 	            <h2>Categories</h2>
 	            <ul>
 	                <li ><a href="/category/2016-municipality-vote-analysis-wisconsin.html">2016 Municipality vote analysis Wisconsin</a></li>
+	                <li ><a href="/category/2016-wisconsin-reporting-units.html">2016 Wisconsin reporting units</a></li>
 	                <li ><a href="/category/2016-wisconsin-vote-analysis-at-the-county-level.html">2016 Wisconsin vote analysis at the county level</a></li>
 	                <li class="active"><a href="/category/avc-edge-systems-and-trump.html">AVC Edge systems and Trump</a></li>
 	            </ul>

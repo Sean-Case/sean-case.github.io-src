@@ -60,13 +60,16 @@ options(contrasts=c('contr.treatment','contr.poly'))
 
 model.o.df = read.csv("modeldfward.o.csv",stringsAsFactors = F)
 
+model.o.df$tch_prop = ifelse(model.o.df$tch_prop > 1,1,model.o.df$tch_prop)
+model.o.df$tch_prop_2012 = ifelse(model.o.df$tch_prop_2012 > 1,1,model.o.df$tch_prop_2012)
+
 model.o.df$demwinner2012 = with(model.o.df, ifelse(demwinner2012 == 1 , "Yes", model.o.df$demwinner2012))
 model.o.df$demwinner2012 = with(model.o.df, ifelse(demwinner2012 == 0, "No", model.o.df$demwinner2012))
 
 model.o.df$tch_prop_split = with(model.o.df, ifelse(tch_prop < 0.25, 0, 1))
 model.o.df$turnout_highlow = with(model.o.df, ifelse(turnout_reg_feb <= 0.85, 0, 1))
-model.o.df$density_levels = with(model.o.df, ifelse(muni.dense < 50, "< 50", 1))
-model.o.df$density_levels = with(model.o.df, ifelse(muni.dense >= 50, "50 - 200", model.o.df$density_levels))
+model.o.df$density_levels = with(model.o.df, ifelse(muni.dense < 50, "< Fifty", 1))
+model.o.df$density_levels = with(model.o.df, ifelse(muni.dense >= 50, "Fifty - two hundred", model.o.df$density_levels))
 model.o.df$density_levels = with(model.o.df, ifelse(muni.dense >= 200, "Two hundred +", model.o.df$density_levels))
 
 # model.o.df$vote_levels = with(model.o.df, ifelse(total_ballots < 500, "< 500", 1))
@@ -78,6 +81,9 @@ model.o.df$turnout_levels = with(model.o.df, ifelse(turnout_reg_feb < .80, "< 80
 model.o.df$turnout_levels = with(model.o.df, ifelse(turnout_reg_feb >= .80, "80 - 89", model.o.df$turnout_levels))
 model.o.df$turnout_levels = with(model.o.df, ifelse(turnout_reg_feb >= .90, "90 - 94", model.o.df$turnout_levels))
 model.o.df$turnout_levels = with(model.o.df, ifelse(turnout_reg_feb >= .95, "95 +", model.o.df$turnout_levels))
+
+model.o.df$above_mean_tch = with(model.o.df, ifelse(republican_votes.perc > 
+                                  mean(republican_votes.perc[tch_prop == 0],na.rm=T), "Greater", "Less"))
 
 model.o.df$inc_levels = NA
 model.o.df$inc_levels = with(model.o.df, ifelse(inc_2015 < median(inc_2015,na.rm=T), "Below median", model.o.df$inc_levels))

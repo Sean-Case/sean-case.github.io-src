@@ -33,14 +33,8 @@
 
 
       <article>
-        <h1><a href="/avcedgetrump.html">Influence of Sequoia AVC Edge touchscreen use on the Wisconsin Trump vote</a></h1>
-        <ul>
-<li>The proportion of votes coming from use of the Sequoia AVC Edge electronic voting system in Wisconsin was significantly correlated with increases in vote % for Trump in the 2016 Republican primary and the 2016 Presidential vote. This was not the case for the 2012 Presidential contest.</li>
-<li>This finding held true even when the use of AVC Edge voting machines was considered alongside a range of municipality-level demographic and voting method variables.</li>
-<li>Results suggest that if manipulation occurred, it did not artificially increase the number of voters but instead modified the votes of genuine voters.</li>
-<li>An investigation of the physical voting machines used in Wisconsin in 2016 is needed to determine whether they have been tampered with before or during the 2016 elections to favour Trump.</li>
-</ul>
-<hr>
+        <h1><a href="/reporting_unit.html">Republican vote 2016 with AVC Edge at reporting unit level</a></h1>
+        <h2>* The use of AVC Edge voting machines in Wisconsin is statistically significant in increasing the vote % for Trump at the reporting unit level.</h2>
 <p><script language="javascript">
     function toggle(num) {
       var ele = document.getElementById("toggleText" + num);
@@ -71,1161 +65,196 @@ cursor: pointer;
 }
 </style>
 
+<p><em>P.S. Interactive online Carto maps of <a href="https://seancase.carto.com/builder/aef18204-cf53-11e6-af7f-0e3ff518bd15">the vote in 2016</a> and <a href="https://seancase.carto.com/builder/d3c82dbe-99c8-4543-b467-490bd748d88d">the change in vote from 2012 to 2016</a> accompany these posts (municipality level). Go play with the data! Also, the code underlying the analysis described here can be found at <a href="https://github.com/Sean-Case/WisconsinElection2016">Github</a>. The .csv file used in the models on this page are named modeldfward.repunit.o.csv (original data).</em></p>
 <h1>Introduction</h1>
-<p>My <a href="https://sean-case.github.io/wisconsinmuni">previous analysis</a> suggested that the Wisconsin 2016 vote may have been affected by the extent of the use of voting machines (also known as touchscreen voting systems, or direct recording electronic voting, DRE, machines).</p>
-<p>This post shows that the use of <a href="https://www.verifiedvoting.org/resources/voting-equipment/sequoia/avc-edge/">Sequoia Dominion AVC Edge voting machines</a> in Wisconsin municipalities in the 2016 Republican primary and 2016 Presidential election was strongly and positively correlated with higher votes for Trump, even when considered alongside a large number of municipality-level demographic, income, educational, and election-related variables (both for original vote data and following the recount). These findings suggest that the Sequoia voting machines used in Wisconsin in 2016 should be investigated further to determine whether any vulnerabilities of such systems (for example see <a href="https://www.cyberscoop.com/security-firm-stokes-election-hacking-fears-media-bites-on-story/">here</a>, and <a href="http://votingsystems.cdn.sos.ca.gov/oversight/ttbr/sequoia-source-public-jul26.pdf">here</a>, and reported voting machines with broken tamper-proof seals <a href="http://www.palmerreport.com/news/modems-tampered-seals-wisconsin-recount/374/">here</a>) were manipulated in 2016 to influence the vote.</p>
-<p>In the following analysis, the effect of the extent of the use of voting machines on the Presidential elections in 2012 and 2016 are compared against a number of municipality-level demographic variables, inspired by post about the 2016 election by <a href="https://econsnapshot.com/2016/12/06/electronic-voting-machines-and-the-election/">Thomas Cooley, Ben Griffy, and Peter Rupert at Economic Snapshot</a> and by further discussions with Professor Barry Burden of the University of Wisconsin, Madison. Demographic, income, and educational data at the municipality level was taken from <a href="https://www.census.gov/geo/maps-data/data/tiger-data.html">the TIGER database of 2011-2015 American Community Survey (ACS) 5-year estimates</a>. Vote and voting machine data was taken from the <a href="http://elections.wi.gov">Wisconsin Elections Commission</a>. Finally, the spatial data used for the maps was taken from the <a href="http://maps.sco.wisc.edu/opengeoportal/">'GeoData@Wisconsin' site, hosted by the University of Wisconsin - Madison</a>. </p>
-<p><em>If you want to recreate this analysis yourself, the data underlying the analysis described here can be found at <a href="https://github.com/Sean-Case/WisconsinElection2016">Github</a>. The .csv files used in the models are named modeldfward.o.csv (original data), and modeldfward.r.csv (recount data).</em></p>
-<h2>Overview of voting machine effect on the Republican vote change 2012 - 2016</h2>
-<iframe width="100%" height="520" frameborder="0" src="https://seancase.carto.com/builder/732496b0-160e-11e7-9ec8-0e05a8b3e3d7/embed" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>
-
-<p><em>See the full-size Carto map <a href="https://seancase.carto.com/builder/732496b0-160e-11e7-9ec8-0e05a8b3e3d7">the change in Republican vote from 2012 to 2016 and influence of voting machines</a>.</em></p>
-<h1>Results summary</h1>
-<p><a id="displayText100" class = "button" href="javascript:toggle(100);">Hide graph and data</a>
-  <div id="toggleText100" style="display: block">
-<img src="/figure/TCH_prop_post 22-04-17-olsmodelgraphs1216a-1.png" title="plot of chunk olsmodelgraphs1216a" alt="plot of chunk olsmodelgraphs1216a" style="display: block; margin: auto;" /></p>
+<p>A <a href="https://sean-case.github.io/avcedgetrump.html">previous analysis</a> suggested that the Wisconsin 2016 vote may have been affected by the extent of the use of the AVC Edge voting machine (also known as touchscreen voting systems, or direct recording electronic voting machines). However, this analysis was conducted at the municipality level. In this short post, I will show that these results hold also at the reporting unit level.</p>
+<p><em>A note of caution: the outputs described here suggest that the extent of the use of voting machines could be a PREDICTOR of an increased or decreased vote for Republican as determined by the statistical model. We cannot know from this alone if the voting machines were manipulated in any way, it only suggests that further investigation is necessary to determine the cause of this effect.</em></p>
+<p>In the following analysis, the effect of the extent of the use of voting machines on the Presidential elections in 2012 and 2016 are compared against a number of county-level demographic variables, many provided by a very useful post about the 2016 election by <a href="https://econsnapshot.com/2016/12/06/electronic-voting-machines-and-the-election/">Thomas Cooley, Ben Griffy, and Peter Rupert at Economic Snapshot</a>, and some from David Greenwald (@davidegreenwald) and colleagues, who have also been <a href="https://docs.google.com/document/d/1BcJNx-Q3PYffy71XQxqGdYcM5gf7m16r8bgSQT16fi0/edit#">looking into the 2016 Wisconsin presidential election</a>. Voting machine presence and make data at the municipality level was taken from <a href="http://verifiedvoting.org">Verified Voting</a>. The spatial data used for the maps was taken from the <a href="http://maps.sco.wisc.edu/opengeoportal/">'GeoData@Wisconsin' site, hosted by the University of Wisconsin - Madison</a>. Finally, the vote and registered voter data was taken from the <a href="http://elections.wi.gov">Wisconsin Elections Commission</a>.</p>
+<h2>Overview of voting machine effect on the Republican vote 2016</h2>
+<h1>Proportion of touchscreens used in reporting units with AVC Edge vs none</h1>
+<p><a id="displayText101" class = "button" href="javascript:toggle(101);">Hide graph and data</a>
+  <div id="toggleText101" style="display: block">
+<img src="/figure/Reporting_units05-09-2017-olsmodelgraphs-1.png" title="plot of chunk olsmodelgraphs" alt="plot of chunk olsmodelgraphs" style="display: block; margin: auto;" /></p>
 <table>
 <thead>
 <tr>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
-<th align="center">Change in Republican vote (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">No</td>
-<td align="center">4.0</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">10.8</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th align="center">Won by Democrats in 2012</th>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
-<th align="center">Change in Republican vote (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">No</td>
-<td align="center">No</td>
-<td align="center">3.0</td>
-</tr>
-<tr>
-<td align="center">No</td>
-<td align="center">Yes</td>
-<td align="center">9.5</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">No</td>
-<td align="center">5.4</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">Yes</td>
-<td align="center">12.4</td>
-</tr>
-</tbody>
-</table>
-<p></div>
-<em>The change in vote % for Republicans between the 2012 and 2016 Wisconsin Presidential election by the proportion of votes coming from use of the Sequoia AVC Edge touchscreen voting machine.</em></p>
-<p>The above graph and tables show a strong trend in increasing change in Republican vote in Wisconsin municipalities between 2012 and 2016 according to how often touchscreen voting machines (specifically the Sequoia AVC Edge system) were used in each location. By using statistical models called linear regression models, and looking at the Republican vote compared against touchscreen and other variables such as ethnicity, age, education, method of voting, and previous voting patterns, we can determine whether this trend is statistically significant and worth looking into further, or if it can be explained by other variables and / or random variation in votes. This analysis considered not only the influence of AVC Edge touchscreen use in Wisconsin in the 2016 Presidential election, but also in the 2012 Presidential election and the 2016 Republican primary. For the Trump spring primary, the 2016 Presidential vote, and the change in Republican vote between 2012 and 2016, the use of the Sequoia AVC Edge touchscreen voting system was a statistically significant in increasing the votes for Trump. </p>
-<p><em>An important note: This correlation, despite its strength, does not indicate 100% that voting systems were intentionally manipulated. This will only be confirmed following analysis of the specific machines used in the 2016 contests, preferably in the areas where touchscreen use is most strongly correlated with the greatest increases in Republican vote compared to 2012.</em></p>
-<p>The graphs, tables, and model outputs underlying this analysis are presented further down this post. However, first I will summarise the results to show all of the variables that significantly influenced the Republican vote in 2012 and 2016. In the following results summaries, variables that had a statistically significant effect on the Republican / Trump vote in 2012 and 2016 are highlighted. '+' symbols indicate that a particular variable had a positive effect on the Republican vote in the election indicated on the column header (p &lt; 0.05). '-' symbols indicate that the variable had a negative effect. 'NA' indicates that the variable was not included in that particular model.</p>
-<p><em>For the stats people - errors were clustered by county to account for correlation between variables in these spatial units, meaning that significance terms are often 'less significant' than a standard linear regression would give.</em></p>
-<h2>Proportion of touchscreen use 2012 to 2016</h2>
-<table>
-<thead>
-<tr>
-<th align="center">Independent variable</th>
-<th align="center">Republican presidential vote 2012</th>
-<th align="center">Trump spring primary 2016</th>
-<th align="center">Trump vote change primary to 2016 presidential election</th>
-<th align="center">Republican presidential vote 2016</th>
-<th align="center">Republican vote change presidential 2012 to 2016</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">Proportion of AVC Edge use</td>
-<td align="center"></td>
-<td align="center">+</td>
-<td align="center"></td>
-<td align="center">+</td>
-<td align="center">+</td>
-</tr>
-<tr>
-<td align="center">Change in AVC Edge use 2012-2016 Presidential</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr>
-<td align="center">Change in AVC Edge use Republican 2016 Primary-2016 Presidential</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">-</td>
-<td align="center">-</td>
-<td align="center">-</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>
-<p>Vote for Trump in primary, Republican vote 2016, and Republican vote change 2012-2016 were POSITIVELY affected by percentage of ballots coming from use of the Sequoia AVC Edge in a municipality. This effect did not change between the primary and the final 2016 vote.</p>
-</li>
-<li>
-<p>The increased vote for Republicans from use of the Sequoia AVC Edge was not due simply to an increased percentage of voters using the touchscreen system. In fact, compared to the Republican primary in 2016, increased touchscreen use had a negative effect. These results suggest that if manipulation occurred, it did not artificially increase the number of voters in the 2016 Presidential election, but instead modified the votes of those who had actually voted using the AVC Edge.</p>
-</li>
-</ul>
-<h2>Other vote method variables 2012 to 2016</h2>
-<table>
-<thead>
-<tr>
-<th align="center">Independent variable</th>
-<th align="center">Republican presidential vote 2012</th>
-<th align="center">Trump spring primary 2016</th>
-<th align="center">Trump vote change primary to 2016 presidential election</th>
-<th align="center">Republican presidential vote 2016</th>
-<th align="center">Republican vote change presidential 2012 to 2016</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">Total ballots counted</td>
-<td align="center">+</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr>
-<td align="center">Voter turnout %</td>
-<td align="center"></td>
-<td align="center">-</td>
-<td align="center">+</td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr>
-<td align="center">Proportion voters registered same day</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">+</td>
-<td align="center">+</td>
-</tr>
-<tr>
-<td align="center">Proportion absentee ballots rejected</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr>
-<td align="center">Proportion absentee ballots counted</td>
-<td align="center">+</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">-</td>
-<td align="center">-</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>
-<p>Greater number of ballots counted (an indicator for the population size of the municipality) had a positive effect on the Republican vote only in 2012.</p>
-</li>
-<li>
-<p>Votes for Trump in the 2016 Presidential contest were higher where more voters registered on the same day.</p>
-</li>
-<li>
-<p>Trump votes in the 2016 Presidential contest were lower Where the proportion of absentee ballots were highest.</p>
-</li>
-</ul>
-<h2>Demographic variables 2012 to 2016</h2>
-<table>
-<thead>
-<tr>
-<th align="center">Independent variable</th>
-<th align="center">Republican presidential vote 2012</th>
-<th align="center">Trump spring primary 2016</th>
-<th align="center">Trump vote change primary to 2016 presidential election</th>
-<th align="center">Republican presidential vote 2016</th>
-<th align="center">Republican vote change presidential 2012 to 2016</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">Population density</td>
-<td align="center">-</td>
-<td align="center">-</td>
-<td align="center">-</td>
-<td align="center">-</td>
-<td align="center">-</td>
-</tr>
-<tr>
-<td align="center">Male %</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">+</td>
-<td align="center">+</td>
-</tr>
-<tr>
-<td align="center">Black %</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr>
-<td align="center">Latino %</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr>
-<td align="center">White %</td>
-<td align="center">+</td>
-<td align="center"></td>
-<td align="center">+</td>
-<td align="center">+</td>
-<td align="center">+</td>
-</tr>
-<tr>
-<td align="center">University graduate %</td>
-<td align="center">-</td>
-<td align="center">-</td>
-<td align="center">-</td>
-<td align="center">-</td>
-<td align="center">-</td>
-</tr>
-<tr>
-<td align="center">Median age</td>
-<td align="center"></td>
-<td align="center">+</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr>
-<td align="center">Per capita income</td>
-<td align="center">+</td>
-<td align="center">-</td>
-<td align="center"></td>
-<td align="center">-</td>
-<td align="center">-</td>
-</tr>
-<tr>
-<td align="center">Unemployment rate</td>
-<td align="center"></td>
-<td align="center">+</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>
-<p>Municipalities of lower population density consistently voted more for Republicans in 2012 and 2016</p>
-</li>
-<li>
-<p>In 2012 poorer people voted more for Democrats. In 2016 this was reversed - in the Primary poorer people went for Trump, and in the presidential contest richer people went for Clinton, poorer for Trump.</p>
-</li>
-<li>
-<p>Men were more likely to vote for Republicans for the 2016 Presidential contest.</p>
-</li>
-<li>
-<p>White people were more likely to vote Republican in 2012 and for Trump in 2016. Black and Latino voters did not significantly favour Democrats or Republicans in any contests.</p>
-</li>
-<li>
-<p>University graduates were more likely to vote Democrat in all instances.</p>
-</li>
-<li>
-<p>Older people and unemployed people were more likely to vote for Trump in the 2016 Republican primary, but not in the 2016 presidential election.</p>
-</li>
-</ul>
-<h2>Votes in previous elections</h2>
-<table>
-<thead>
-<tr>
-<th align="center">Independent variable</th>
-<th align="center">Republican presidential vote 2012</th>
-<th align="center">Trump spring primary 2016</th>
-<th align="center">Trump vote change primary to 2016 presidential election</th>
-<th align="center">Republican presidential vote 2016</th>
-<th align="center">Republican vote change presidential 2012 to 2016</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">Democrat vote 2012 Presidential %</td>
-<td align="center">NA</td>
-<td align="center">+</td>
-<td align="center">NA</td>
-<td align="center">-</td>
-<td align="center">+</td>
-</tr>
-<tr>
-<td align="center">Other vote 2012 Presidential %</td>
-<td align="center">-</td>
-<td align="center">+</td>
-<td align="center"></td>
-<td align="center">-</td>
-<td align="center">+</td>
-</tr>
-<tr>
-<td align="center">Trump vote Rep. primary %</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">-</td>
-<td align="center">+</td>
-<td align="center">+</td>
-</tr>
-<tr>
-<td align="center">Other vote Rep. primary %</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">-</td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr>
-<td align="center">Sanders vote Dem. Primary %</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr>
-<td align="center">Other vote Dem. primary %</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">+</td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>
-<p>Voting for Democrats or Other candidates in 2012 indicated a greater positive change in Republican votes in the 2016 Presidential contest compared to 2012, and a greater vote for Trump in the Primary. This indicated that Trump was successful at swinging 2012 'Democrat' and 'Other' voters to him.</p>
-</li>
-<li>
-<p>Voting Trump in the primary was (unsurprisingly) linked to higher votes in the 2016 election. Voting patterns in the Democrat primary were not significantly linked to the results of the 2016 Presidential vote.</p>
-</li>
-</ul>
-<h1>Graphs and models of the Republican / Trump vote vs AVC Edge use 2012-2016</h1>
-<p>The following section visualises the effect of Sequoia AVC Edge presence on the Republican / Trump vote, as well as the outputs of the statistical models underlying the results already summarised.</p>
-<h2>Republican vote in 2012</h2>
-<p>The following graph and tables show that the vote for Republicans in 2012 Presidential elections (Mitt Romney as candidate) was not significantly different in areas where Sequoia AVC Edge systems were used for at least 25% of the ballots compared to areas that used them less (49.4 vs 51.3% respectively). Below this, the model output shows that the touchscreen variable (tch_prop) did not have a statistically significant effect on the Republican vote.</p>
-<p><a id="displayText2" class = "button" href="javascript:toggle(2);">Hide graph and data</a>
-  <div id="toggleText2" style="display: block">
-<img src="/figure/TCH_prop_post 22-04-17-olsmodelgraphs2012-1.png" title="plot of chunk olsmodelgraphs2012" alt="plot of chunk olsmodelgraphs2012" style="display: block; margin: auto;" /></p>
-<table>
-<thead>
-<tr>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
+<th align="center">Voting machines used by over 25% of people?</th>
 <th align="center">Republican vote (%)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">No</td>
-<td align="center">51.3</td>
+<td align="center">0</td>
+<td align="center">45.4</td>
 </tr>
 <tr>
-<td align="center">Yes</td>
-<td align="center">49.4</td>
+<td align="center">1</td>
+<td align="center">60.3</td>
 </tr>
 </tbody>
 </table>
 <table>
 <thead>
 <tr>
-<th align="center">Won by Democrats in 2012</th>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
+<th align="center">Won by Dems in 2012</th>
+<th align="center">Voting machines used by over 25% of people?</th>
 <th align="center">Republican vote (%)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">No</td>
-<td align="center">No</td>
-<td align="center">59.8</td>
+<td align="center">no</td>
+<td align="center">0</td>
+<td align="center">59.6</td>
 </tr>
 <tr>
-<td align="center">No</td>
-<td align="center">Yes</td>
-<td align="center">56.1</td>
+<td align="center">no</td>
+<td align="center">1</td>
+<td align="center">66.0</td>
 </tr>
 <tr>
-<td align="center">Yes</td>
-<td align="center">No</td>
-<td align="center">40.4</td>
+<td align="center">yes</td>
+<td align="center">0</td>
+<td align="center">35.3</td>
 </tr>
 <tr>
-<td align="center">Yes</td>
-<td align="center">Yes</td>
-<td align="center">41.5</td>
+<td align="center">yes</td>
+<td align="center">1</td>
+<td align="center">53.4</td>
 </tr>
 </tbody>
 </table>
-</div>
-
-<p>Model output</p>
-<p><a id="displayText3" class = "button" href="javascript:toggle(3);">Show model output</a>
-  <div id="toggleText3" style="display: none"></p>
-<div class="highlight"><pre><span></span><span class="cp">##</span><span class="c"> Frequencies of Missing Values Due to Each Variable</span><span class="x"></span>
-<span class="cp">##</span><span class="c">              rep.perc2012        total_ballots_2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         1                         1 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                muni.dense                  pct_male </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         4                         3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                 pct_black                  inc_2015 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         3                         3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                unemp_rate              oth.perc2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         3                         2 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                   age_med                pct_latino </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         3                         3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                 pct_white          turnout_reg_2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         3                         1 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">              pct_graduate rejected_absent_prop_2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         3                         1 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  counted_absent_prop_2012     late_registrants_2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         1                         1 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">             tch_prop_2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         1 </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> Linear Regression Model</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  ols(formula = model_formula, data = model.o.df, x = TRUE, y = TRUE)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                                 Model Likelihood     Discrimination    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                                    Ratio Test           Indexes        </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Obs                   1689     LR chi2    341.71    R2       0.183    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sigma               9.8250     d.f.           16    R2 adj   0.175    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  d.f.                  1672     Pr(&gt; chi2) 0.0000    g        4.713    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Cluster onmodel.o.df$county                                           </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Clusters                68                                            </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Residuals</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">       Min       1Q   Median       3Q      Max </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  -42.8441  -6.3513   0.3033   6.6658  37.1214 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                            Coef     S.E.    t     Pr(&gt;|t|)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Intercept                   4.2076  7.5102  0.56 0.5754  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  total_ballots_2012          0.0000  0.0000  2.27 0.0236  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  muni.dense                 -0.0085  0.0018 -4.73 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_male                    0.1254  0.0840  1.49 0.1354  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_black                  -0.1885  0.1403 -1.34 0.1790  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  inc_2015                    0.0004  0.0002  2.32 0.0204  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  unemp_rate                 -0.2103  0.1491 -1.41 0.1586  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  oth.perc2012               -0.7181  0.3270 -2.20 0.0282  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  age_med                    -0.0604  0.0782 -0.77 0.4396  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_latino                  0.0784  0.0659  1.19 0.2341  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_white                   0.3155  0.0464  6.80 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  turnout_reg_2012            8.5690  5.7502  1.49 0.1364  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_graduate               -0.1686  0.0666 -2.53 0.0115  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  rejected_absent_prop_2012 -25.6751 86.3524 -0.30 0.7663  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  counted_absent_prop_2012   11.6299  5.3983  2.15 0.0314  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  late_registrants_2012      -0.3751  2.2591 -0.17 0.8681  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_2012              -0.8991  2.0730 -0.43 0.6645  </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> </span><span class="x"></span>
-</pre></div>
-
-
-</div>
-
-<h2>Republican 2016 election vote</h2>
-<p>The following graph and tables show that the vote for Trump in the 2016 Presidential election was significantly different in areas where Sequoia AVC Edge systems were used compared to areas that used them less or not at all. In areas where Sequoia AVC Edge systems were used more than 25% of the time, the Trump vote was 60.4% on average compared to 55.3% in areas where they were used less or not at all. Below this, the model output shows the significant effect of the touchscreen variable (tch_prop) alongside all the other demographic and voting method variables.</p>
-<p><a id="displayText8" class = "button" href="javascript:toggle(8);">Hide graph and data</a>
-  <div id="toggleText8" style="display: block">
-<img src="/figure/TCH_prop_post 22-04-17-olsmodelgraphs2016-1.png" title="plot of chunk olsmodelgraphs2016" alt="plot of chunk olsmodelgraphs2016" style="display: block; margin: auto;" /></p>
-<table>
-<thead>
-<tr>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
-<th align="center">Republican vote (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">No</td>
-<td align="center">55.3</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">60.4</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th align="center">Won by Democrats in 2012</th>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
-<th align="center">Republican vote (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">No</td>
-<td align="center">No</td>
-<td align="center">62.8</td>
-</tr>
-<tr>
-<td align="center">No</td>
-<td align="center">Yes</td>
-<td align="center">65.8</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">No</td>
-<td align="center">45.7</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">Yes</td>
-<td align="center">53.9</td>
-</tr>
-</tbody>
-</table>
-</div>
-
-<p>Model output</p>
-<p><a id="displayText9" class = "button" href="javascript:toggle(9);">Show model output</a>
-  <div id="toggleText9" style="display: none"></p>
-<div class="highlight"><pre><span></span><span class="cp">##</span><span class="c"> Frequencies of Missing Values Due to Each Variable</span><span class="x"></span>
-<span class="cp">##</span><span class="c">      republican_votes.perc              total_ballots </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          0                          8 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                 muni.dense                   pct_male </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          4                          3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                  pct_black                   inc_2015 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                 unemp_rate               oth.perc2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          2 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                    age_med                 pct_latino </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                  pct_white            turnout_reg_feb </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          8 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">           sameday_reg_prop                   tch_prop </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         17                          8 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">               pct_graduate       rejected_absent_prop </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                         11 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">        counted_absent_prop               dem.perc2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         11                          1 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">           late_registrants votes_perc_sanders_demprim </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         12                         37 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">   votes_perc_other_demprim    votes_perc_trump_reprim </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         37                         16 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">    votes_perc_other_reprim    tch_prop_2012_2016_diff </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         16                          9 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">       tch_prop_reprim_diff </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         27 </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> Linear Regression Model</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  ols(formula = model_formula, data = model.o.df, x = TRUE, y = TRUE)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                                  Model Likelihood     Discrimination    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                                     Ratio Test           Indexes        </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Obs                   1622     LR chi2    3445.63    R2       0.880    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sigma               3.7220     d.f.            24    R2 adj   0.879    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  d.f.                  1597     Pr(&gt; chi2)  0.0000    g       11.053    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Cluster onmodel.o.df$county                                            </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Clusters                68                                             </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Residuals</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">        Min        1Q    Median        3Q       Max </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  -18.93312  -2.09850  -0.04549   2.26017  16.22290 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                             Coef    S.E.   t      Pr(&gt;|t|)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Intercept                  84.7690 5.2843  16.04 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  total_ballots               0.0000 0.0000  -0.70 0.4824  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  muni.dense                 -0.0019 0.0005  -3.60 0.0003  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_male                    0.0954 0.0335   2.85 0.0045  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_black                  -0.0046 0.0611  -0.08 0.9394  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  inc_2015                   -0.0001 0.0000  -3.97 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  unemp_rate                  0.0223 0.0517   0.43 0.6658  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  oth.perc2012               -0.5640 0.1808  -3.12 0.0018  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  age_med                     0.0132 0.0244   0.54 0.5889  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_latino                  0.0149 0.0349   0.43 0.6686  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_white                   0.0903 0.0198   4.57 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  turnout_reg_feb             2.3206 3.5413   0.66 0.5124  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sameday_reg_prop            3.7664 1.8874   2.00 0.0462  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop                    2.0138 0.5194   3.88 0.0001  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_graduate               -0.1969 0.0214  -9.22 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  rejected_absent_prop       -7.2134 4.9624  -1.45 0.1463  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  counted_absent_prop        -8.2280 1.7493  -4.70 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  dem.perc2012               -0.8671 0.0289 -30.03 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  late_registrants            5.3202 9.0004   0.59 0.5545  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_sanders_demprim -0.0372 0.0202  -1.84 0.0661  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_other_demprim    0.2439 0.1484   1.64 0.1004  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_trump_reprim     0.1944 0.0209   9.32 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_other_reprim    -0.0804 0.0783  -1.03 0.3044  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_2012_2016_diff     0.6765 0.8088   0.84 0.4030  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_reprim_diff       -1.3763 0.6470  -2.13 0.0336  </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> </span><span class="x"></span>
-</pre></div>
-
-
-</div>
-
-<h2>Change in Republican vote between the 2012 and 2016 Presidential election</h2>
-<p>The following graph and tables show that the change in votes for Republicans between the 2012 and 2016 Presidential elections was on average + 6.8% in areas where Sequoia AVC Edge systems were used for at least 25% of the ballots, compared to areas that used them less. Below this, the model output shows the significant effect of the touchscreen variable (tch_prop) alongside all the other demographic and voting method variables.</p>
-<p><a id="displayText10" class = "button" href="javascript:toggle(10);">Hide graph and data</a>
-  <div id="toggleText10" style="display: block">
-<img src="/figure/TCH_prop_post 22-04-17-olsmodelgraphs1216-1.png" title="plot of chunk olsmodelgraphs1216" alt="plot of chunk olsmodelgraphs1216" style="display: block; margin: auto;" /></p>
-<table>
-<thead>
-<tr>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
-<th align="center">Change in Republican vote (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">No</td>
-<td align="center">4.0</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">10.8</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th align="center">Won by Democrats in 2012</th>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
-<th align="center">Change in Republican vote (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">No</td>
-<td align="center">No</td>
-<td align="center">3.0</td>
-</tr>
-<tr>
-<td align="center">No</td>
-<td align="center">Yes</td>
-<td align="center">9.5</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">No</td>
-<td align="center">5.4</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">Yes</td>
-<td align="center">12.4</td>
-</tr>
-</tbody>
-</table>
-</div>
-
-<p>Model output</p>
-<p><a id="displayText11" class = "button" href="javascript:toggle(11);">Show model output</a>
-  <div id="toggleText11" style="display: none"></p>
-<div class="highlight"><pre><span></span><span class="cp">##</span><span class="c"> Frequencies of Missing Values Due to Each Variable</span><span class="x"></span>
-<span class="cp">##</span><span class="c">            rep.change.perc              total_ballots </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          1                          8 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                 muni.dense                   pct_male </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          4                          3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                  pct_black                   inc_2015 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                 unemp_rate               oth.perc2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          2 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                    age_med                 pct_latino </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                  pct_white            turnout_reg_feb </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          8 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">           sameday_reg_prop                   tch_prop </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         17                          8 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">               pct_graduate       rejected_absent_prop </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                         11 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">        counted_absent_prop               dem.perc2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         11                          1 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">           late_registrants votes_perc_sanders_demprim </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         12                         37 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">   votes_perc_other_demprim    votes_perc_trump_reprim </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         37                         16 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">    votes_perc_other_reprim    tch_prop_2012_2016_diff </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         16                          9 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">       tch_prop_reprim_diff </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         27 </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> Linear Regression Model</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  ols(formula = model_formula2, data = model.o.df, x = TRUE, y = TRUE)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                                  Model Likelihood     Discrimination    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                                     Ratio Test           Indexes        </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Obs                   1622     LR chi2    1937.73    R2       0.697    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sigma               3.7220     d.f.            24    R2 adj   0.693    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  d.f.                  1597     Pr(&gt; chi2)  0.0000    g        6.055    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Cluster onmodel.o.df$county                                            </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Clusters                68                                             </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Residuals</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">        Min        1Q    Median        3Q       Max </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  -18.93312  -2.09850  -0.04549   2.26017  16.22290 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                             Coef     S.E.   t     Pr(&gt;|t|)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Intercept                  -15.2310 5.2843 -2.88 0.0040  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  total_ballots                0.0000 0.0000 -0.70 0.4824  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  muni.dense                  -0.0019 0.0005 -3.60 0.0003  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_male                     0.0954 0.0335  2.85 0.0045  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_black                   -0.0046 0.0611 -0.08 0.9394  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  inc_2015                    -0.0001 0.0000 -3.97 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  unemp_rate                   0.0223 0.0517  0.43 0.6658  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  oth.perc2012                 0.4360 0.1808  2.41 0.0160  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  age_med                      0.0132 0.0244  0.54 0.5889  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_latino                   0.0149 0.0349  0.43 0.6686  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_white                    0.0903 0.0198  4.57 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  turnout_reg_feb              2.3206 3.5413  0.66 0.5124  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sameday_reg_prop             3.7664 1.8874  2.00 0.0462  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop                     2.0138 0.5194  3.88 0.0001  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_graduate                -0.1969 0.0214 -9.22 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  rejected_absent_prop        -7.2134 4.9624 -1.45 0.1463  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  counted_absent_prop         -8.2280 1.7493 -4.70 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  dem.perc2012                 0.1329 0.0289  4.60 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  late_registrants             5.3202 9.0004  0.59 0.5545  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_sanders_demprim  -0.0372 0.0202 -1.84 0.0661  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_other_demprim     0.2439 0.1484  1.64 0.1004  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_trump_reprim      0.1944 0.0209  9.32 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_other_reprim     -0.0804 0.0783 -1.03 0.3044  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_2012_2016_diff      0.6765 0.8088  0.84 0.4030  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_reprim_diff        -1.3763 0.6470 -2.13 0.0336  </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> </span><span class="x"></span>
-</pre></div>
-
-
-</div>
-
-<h2>The Trump primary vote</h2>
-<p>The following graph and tables show that the vote for Trump in the 2016 Republican primary was significantly different in areas where Sequoia AVC Edge systems were used compared to areas that used them less or not at all. In areas where Sequoia AVC Edge systems were used more than 25% of the time, the Trump vote was 48.2% on average compared to 40.1% in areas where they were used less or not at all. Below this, the model output shows the significant effect of the touchscreen variable (tch_prop) alongside all the other demographic and voting method variables.</p>
-<p><a id="displayText4" class = "button" href="javascript:toggle(4);">Hide graph and data</a>
-  <div id="toggleText4" style="display: block">
-<img src="/figure/TCH_prop_post 22-04-17-olsmodelgraphstrumpprim-1.png" title="plot of chunk olsmodelgraphstrumpprim" alt="plot of chunk olsmodelgraphstrumpprim" style="display: block; margin: auto;" /></p>
-<table>
-<thead>
-<tr>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
-<th align="center">Votes for Trump in Republican primary (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">No</td>
-<td align="center">40.1</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">48.2</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th align="center">Won by Democrats in 2012</th>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
-<th align="center">Votes for Trump in Republican primary (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">No</td>
-<td align="center">No</td>
-<td align="center">38.1</td>
-</tr>
-<tr>
-<td align="center">No</td>
-<td align="center">Yes</td>
-<td align="center">47.6</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">No</td>
-<td align="center">42.6</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">Yes</td>
-<td align="center">48.9</td>
-</tr>
-</tbody>
-</table>
-</div>
-
-<p>Model output</p>
-<p><a id="displayText5" class = "button" href="javascript:toggle(5);">Show model output</a>
-  <div id="toggleText5" style="display: none"></p>
-<div class="highlight"><pre><span></span><span class="cp">##</span><span class="c"> Frequencies of Missing Values Due to Each Variable</span><span class="x"></span>
-<span class="cp">##</span><span class="c">     votes_perc_trump_reprim        total_ballots_reprim </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          16                          20 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                  muni.dense                    pct_male </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                           4                           3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                   pct_black                    inc_2015 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                           3                           3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                  unemp_rate                     age_med </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                           3                           3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                  pct_latino                   pct_white </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                           3                           3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">         turnout_perc_reprim     sameday_reg_prop_reprim </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          30                          30 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                pct_graduate rejected_absent_prop_reprim </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                           3                          28 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  counted_absent_prop_reprim     late_registrants_reprim </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          28                          28 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                dem.perc2012                oth.perc2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                           1                           2 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">             tch_prop_reprim </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          21 </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> Linear Regression Model</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  ols(formula = model_formula, data = model.o.df, x = TRUE, y = TRUE)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                                  Model Likelihood     Discrimination    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                                     Ratio Test           Indexes        </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Obs                   1651     LR chi2    1057.79    R2       0.473    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sigma               7.6167     d.f.            18    R2 adj   0.467    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  d.f.                  1632     Pr(&gt; chi2)  0.0000    g        7.715    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Cluster onmodel.o.df$county                                            </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Clusters                68                                             </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Residuals</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">      Min      1Q  Median      3Q     Max </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  -27.270  -4.984  -0.127   4.743  30.632 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                              Coef    S.E.    t     Pr(&gt;|t|)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Intercept                   19.7247  8.6959  2.27 0.0234  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  total_ballots_reprim        -0.0001  0.0001 -0.67 0.4999  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  muni.dense                  -0.0085  0.0013 -6.59 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_male                     0.0794  0.0759  1.05 0.2957  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_black                   -0.1456  0.1152 -1.26 0.2064  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  inc_2015                    -0.0003  0.0001 -5.02 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  unemp_rate                   0.3771  0.0881  4.28 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  age_med                      0.3634  0.0551  6.60 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_latino                  -0.0557  0.0625 -0.89 0.3732  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_white                    0.0130  0.0465  0.28 0.7798  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  turnout_perc_reprim         -0.0524  0.0071 -7.42 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sameday_reg_prop_reprim      0.1457  3.8878  0.04 0.9701  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_graduate                -0.2244  0.0493 -4.55 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  rejected_absent_prop_reprim  6.1457 15.5326  0.40 0.6924  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  counted_absent_prop_reprim   1.7427  3.1851  0.55 0.5844  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  late_registrants_reprim      2.0364 13.6786  0.15 0.8817  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  dem.perc2012                 0.2653  0.0614  4.32 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  oth.perc2012                 1.0585  0.3021  3.50 0.0005  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_reprim              2.5166  1.2726  1.98 0.0482  </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> </span><span class="x"></span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>##     d.f. 
-## 11410.43
-</pre></div>
-
-
-</div>
-
-<h2>Change in vote between primary and 2016 Presidential election</h2>
-<p>The following graph and tables show that the  change in vote for Trump in the primary compared to the 2016 presidential election was not significantly different in areas where Sequoia AVC Edge systems were used for at least 25% of the ballots compared to areas that used them less (12.3% vs 15.3% respectively). Below this, the model output shows that the touchscreen variable (tch_prop) did not have a statistically significant effect on the Republican vote.</p>
-<p><a id="displayText6" class = "button" href="javascript:toggle(6);">Hide graph and data</a>
-  <div id="toggleText6" style="display: block">
-<img src="/figure/TCH_prop_post 22-04-17-olsmodelgraphsdiffprim2016-1.png" title="plot of chunk olsmodelgraphsdiffprim2016" alt="plot of chunk olsmodelgraphsdiffprim2016" style="display: block; margin: auto;" /></p>
-<table>
-<thead>
-<tr>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
-<th align="center">Change in Trump vote (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">No</td>
-<td align="center">15.3</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">12.3</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th align="center">Won by Democrats in 2012</th>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
-<th align="center">Change in Trump vote (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">No</td>
-<td align="center">No</td>
-<td align="center">24.8</td>
-</tr>
-<tr>
-<td align="center">No</td>
-<td align="center">Yes</td>
-<td align="center">18.1</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">No</td>
-<td align="center">3.1</td>
-</tr>
-<tr>
-<td align="center">Yes</td>
-<td align="center">Yes</td>
-<td align="center">5.1</td>
-</tr>
-</tbody>
-</table>
-</div>
-
-<p>Model output</p>
-<p><a id="displayText7" class = "button" href="javascript:toggle(7);">Show model output</a>
-  <div id="toggleText7" style="display: none"></p>
-<div class="highlight"><pre><span></span><span class="cp">##</span><span class="c"> Frequencies of Missing Values Due to Each Variable</span><span class="x"></span>
-<span class="cp">##</span><span class="c">          trump_vote_change              total_ballots </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         16                          8 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                 muni.dense                   pct_male </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          4                          3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                  pct_black                   inc_2015 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                 unemp_rate               pct_graduate </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                    age_med                 pct_latino </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          3 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                  pct_white            turnout_reg_feb </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          3                          8 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">           sameday_reg_prop       rejected_absent_prop </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         17                         11 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">        counted_absent_prop           late_registrants </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         11                         12 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                   tch_prop votes_perc_sanders_demprim </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                          8                         37 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">   votes_perc_other_demprim    votes_perc_trump_reprim </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         37                         16 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">    votes_perc_other_reprim               oth.perc2012 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         16                          2 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">       tch_prop_reprim_diff </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                         27 </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> Linear Regression Model</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  ols(formula = model_formula, data = model.o.df, x = TRUE, y = TRUE)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                                  Model Likelihood     Discrimination    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                                     Ratio Test           Indexes        </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Obs                   1622     LR chi2    1608.02    R2       0.629    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sigma               8.5552     d.f.            22    R2 adj   0.624    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  d.f.                  1599     Pr(&gt; chi2)  0.0000    g       12.287    </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Cluster onmodel.o.df$county                                            </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Clusters                68                                             </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Residuals</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">      Min      1Q  Median      3Q     Max </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  -41.663  -5.149   1.019   5.925  25.425 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">                             Coef     S.E.    t      Pr(&gt;|t|)</span><span class="x"></span>
-<span class="cp">##</span><span class="c">  Intercept                   26.1396  9.0560   2.89 0.0039  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  total_ballots                0.0000  0.0000   0.47 0.6383  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  muni.dense                  -0.0107  0.0012  -9.18 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_male                     0.1328  0.0721   1.84 0.0656  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_black                   -0.1797  0.1497  -1.20 0.2299  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  inc_2015                     0.0000  0.0001  -0.06 0.9556  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  unemp_rate                  -0.0196  0.1208  -0.16 0.8709  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_graduate                -0.3687  0.0585  -6.31 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  age_med                      0.0414  0.0721   0.57 0.5657  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_latino                   0.0751  0.0551   1.36 0.1729  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  pct_white                    0.3200  0.0459   6.98 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  turnout_reg_feb             19.0407  6.3064   3.02 0.0026  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  sameday_reg_prop            -0.0840  4.4510  -0.02 0.9849  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  rejected_absent_prop       -13.8914 12.5407  -1.11 0.2682  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  counted_absent_prop         -2.0926  4.8556  -0.43 0.6666  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  late_registrants            -7.7249 14.5229  -0.53 0.5949  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop                     2.1728  1.8352   1.18 0.2366  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_sanders_demprim  -0.1207  0.0727  -1.66 0.0974  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_other_demprim     0.9233  0.2687   3.44 0.0006  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_trump_reprim     -1.1604  0.0643 -18.04 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  votes_perc_other_reprim     -0.9461  0.1964  -4.82 &lt;0.0001 </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  oth.perc2012                -0.0277  0.3098  -0.09 0.9288  </span><span class="x"></span>
-<span class="cp">##</span><span class="c">  tch_prop_reprim_diff        -4.3604  1.5150  -2.88 0.0041  </span><span class="x"></span>
-<span class="cp">##</span><span class="c"> </span><span class="x"></span>
-</pre></div>
-
-
-</div>
-
-<h1>Correlation issues - income, graduates, and population density</h1>
-<p>It has been pointed out to me that since the use of the AVC Edge touchscreen is somewhat correlated with income and education level that in fact the observed touchscreen effect is in fact just the combined effect of these two variables. Indeed, we can see below this negative correlation (i.e. those areas with higher income or higher proportion of university graduates were less likely to vote for Trump).</p>
-<p><img src="/figure/TCH_prop_post 22-04-17-correlationinc-1.png" title="plot of chunk correlationinc" alt="plot of chunk correlationinc" style="display: block; margin: auto;" /></p>
-<p>However, the linear regression models that I have featured in this post are designed to take in to account moderately correlating variables such as these and estimate their influence on the vote at the same time. So, variables (e.g. touchscreen use) that come out of the model as significant following inclusion in linear regression models should have a statistically significant effect despite the presence of correlation.</p>
-<p>The effect of touchscreen use at varying income and percentage graduate levels can be seen in the graphs and tables below. What we can see is that in both high and low income / university graduate / population density areas, the use of the Dominion AVC Edge systems seems to increase positively increase the change in Republican vote 2012 - 20216.</p>
-<h2>Per capita income</h2>
-<p><a id="displayText15" class = "button" href="javascript:toggle(15);">Hide graph and tables</a>
-  <div id="toggleText15" style="display: block">
-<img src="/figure/TCH_prop_post 22-04-17-olsmodelgraphsinc_2015-1.png" title="plot of chunk olsmodelgraphsinc_2015" alt="plot of chunk olsmodelgraphsinc_2015" style="display: block; margin: auto;" /></p>
-<table>
-<thead>
-<tr>
-<th align="center">Per capita income 2011-2015</th>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
-<th align="center">Change in Republican vote (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">Below median</td>
-<td align="center">No</td>
-<td align="center">7.9</td>
-</tr>
-<tr>
-<td align="center">Below median</td>
-<td align="center">Yes</td>
-<td align="center">11.8</td>
-</tr>
-<tr>
-<td align="center">Higher than median</td>
-<td align="center">No</td>
-<td align="center">2.3</td>
-</tr>
-<tr>
-<td align="center">Higher than median</td>
-<td align="center">Yes</td>
-<td align="center">8.8</td>
-</tr>
-</tbody>
-</table>
-</div>
-
-<h2>Percentage of university graduates</h2>
-<p><a id="displayText16" class = "button" href="javascript:toggle(16);">Hide graph and tables</a>
-  <div id="toggleText16" style="display: block">
-<img src="/figure/TCH_prop_post 22-04-17-olsmodelgraphsgraduate-1.png" title="plot of chunk olsmodelgraphsgraduate" alt="plot of chunk olsmodelgraphsgraduate" style="display: block; margin: auto;" /></p>
-<table>
-<thead>
-<tr>
-<th align="center">% university graduates</th>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
-<th align="center">Change in Republican vote (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">Below median</td>
-<td align="center">No</td>
-<td align="center">8.3</td>
-</tr>
-<tr>
-<td align="center">Below median</td>
-<td align="center">Yes</td>
-<td align="center">12.0</td>
-</tr>
-<tr>
-<td align="center">Higher than median</td>
-<td align="center">No</td>
-<td align="center">2.1</td>
-</tr>
-<tr>
-<td align="center">Higher than median</td>
-<td align="center">Yes</td>
-<td align="center">8.7</td>
-</tr>
-</tbody>
-</table>
-</div>
-
-<h2>Municipality population density (people / km2)</h2>
-<p>What is particularly striking about the change in Republican vote 2012-2016 in areas of different population density is that the effect of AVC Edge touchscreen appears to be stronger in areas of high density (i.e. towns / cities, with a population density of 200 people / km or greater). Were we to follow the hypothesis that the voting machines were directly manipulated - this makes sense - as hackers would likely target the areas where they get the most 'bang for their buck', namely densely-populated areas. I have not considered this finding further in this post, but any investigation should take into account that checking AVC Edge systems in densely-populated areas should be a priority.</p>
-<p><a id="displayText17" class = "button" href="javascript:toggle(17);">Hide graph and tables</a>
-  <div id="toggleText17" style="display: block">
-<img src="/figure/TCH_prop_post 22-04-17-olsmodelgraphsdensity-1.png" title="plot of chunk olsmodelgraphsdensity" alt="plot of chunk olsmodelgraphsdensity" style="display: block; margin: auto;" /></p>
 <table>
 <thead>
 <tr>
 <th align="center">Population density (ppl / km2)</th>
-<th align="center">AVC Edge machines used by &gt; 25% of voters?</th>
-<th align="center">Change in Republican vote (%)</th>
+<th align="center">Voting machines used by over 25% of people?</th>
+<th align="center">Vote Republicans 2016 (%) - areas Dem lost 2012</th>
+<th align="center">Vote Republicans 2016 (%) - areas Dem won 2012</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">50 - 200</td>
-<td align="center">No</td>
-<td align="center">2.8</td>
+<td align="center">0</td>
+<td align="center">61.2</td>
+<td align="center">48.5</td>
 </tr>
 <tr>
 <td align="center">50 - 200</td>
-<td align="center">Yes</td>
-<td align="center">13.0</td>
+<td align="center">1</td>
+<td align="center">65.8</td>
+<td align="center">54.1</td>
 </tr>
 <tr>
 <td align="center">&lt; 50</td>
-<td align="center">No</td>
-<td align="center">5.7</td>
+<td align="center">0</td>
+<td align="center">64.7</td>
+<td align="center">48.3</td>
 </tr>
 <tr>
 <td align="center">&lt; 50</td>
-<td align="center">Yes</td>
-<td align="center">10.5</td>
+<td align="center">1</td>
+<td align="center">66.3</td>
+<td align="center">54.1</td>
 </tr>
 <tr>
 <td align="center">Two hundred +</td>
-<td align="center">No</td>
-<td align="center">1.5</td>
+<td align="center">0</td>
+<td align="center">55.2</td>
+<td align="center">32.2</td>
 </tr>
 <tr>
 <td align="center">Two hundred +</td>
-<td align="center">Yes</td>
-<td align="center">10.9</td>
+<td align="center">1</td>
+<td align="center">63.1</td>
+<td align="center">51.4</td>
 </tr>
 </tbody>
 </table>
+<p><img src="/figure/Reporting_units05-09-2017-olsmodelgraphs-2.png" title="plot of chunk olsmodelgraphs" alt="plot of chunk olsmodelgraphs" style="display: block; margin: auto;" /><img src="/figure/Reporting_units05-09-2017-olsmodelgraphs-3.png" title="plot of chunk olsmodelgraphs" alt="plot of chunk olsmodelgraphs" style="display: block; margin: auto;" /></p>
 </div>
 
-<h1>Conclusions</h1>
-<p>In Wisconsin, votes for Trump in the 2016 Primary, and votes for Trump in the 2016 Presidential vote were significantly correlated with the proportion of voters using the Sequoia AVC Edge touchscreen system, a finding that held true even when considered alongside a multitude of demographic variables. The same touchscreen systems did not have the same effect in the 2012 Presidential election.</p>
-<p>The results suggest that if manipulation occurred, it was not by artificially increasing the number of people who voted for Trump via the AVC Edge systems (i.e. adding 'fake' voters), but instead by modifying the votes of genuine voters.</p>
-<p>These findings do not indicate with certainty that voting machines were manipulated in Wisconsin in 2016. They only indicate that further investigation is necessary, which requires analysing the specific AVC Edge voting machines used in Wisconsin in 2016 in the areas with the greatest increase in Republican vote from 2012. Only then can we know if security vulnerabilities were exploited to help Trump win in Wisconsin.</p>
+<h2>Republican 2016 vote</h2>
+<p><a id="displayText1" class = "button" href="javascript:toggle(1);">Show model code</a>
+  <div id="toggleText1" style="display: block"></p>
+<div class="highlight"><pre><span></span><span class="cp">##</span><span class="c"> Frequencies of Missing Values Due to Each Variable</span><span class="x"></span>
+<span class="cp">##</span><span class="c">      republican_votes.perc                   tch_prop </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                          0                          0 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">              total_ballots                 muni.dense </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                          0                          7 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                   pct_male                   inc_2015 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                          4                          5 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                 unemp_rate               rep.perc2012 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                          4                          0 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">               oth.perc2012    votes_perc_trump_reprim </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                          0                        259 </span><span class="x"></span>
+<span class="cp">##</span><span class="c"> votes_perc_clinton_demprim                    age_med </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                        259                          4 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                  pct_white           turnout_reg_2016 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                          4                          0 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">           sameday_reg_prop                 paper_prop </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                         10                          0 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">               pct_graduate        counted_absent_prop </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                          4                        109 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">            absentee_failed           late_registrants </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                        137                          1 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">             inspector_prop       absentee_person_prop </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                          0                        137 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">         registrants_change </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                          7 </span><span class="x"></span>
+<span class="cp">##</span><span class="c"> </span><span class="x"></span>
+<span class="cp">##</span><span class="c"> Linear Regression Model</span><span class="x"></span>
+<span class="cp">##</span><span class="c">  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  ols(formula = log.formula, data = model.o.df, x = TRUE, y = TRUE)</span><span class="x"></span>
+<span class="cp">##</span><span class="c">  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                                       Model Likelihood     Discrimination    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                                          Ratio Test           Indexes        </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Obs                        2697     LR chi2    8034.94    R2       0.949    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  sigma                    3.8839     d.f.            22    R2 adj   0.949    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  d.f.                       2674     Pr(&gt; chi2)  0.0000    g       18.335    </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Cluster onmodel.o.df$muni_county                                            </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Clusters                   1568                                             </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Residuals</span><span class="x"></span>
+<span class="cp">##</span><span class="c">  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">         Min         1Q     Median         3Q        Max </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  -28.158513  -2.266691  -0.004007   2.207788  21.357472 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">                             Coef    S.E.   t     Pr(&gt;|t|)</span><span class="x"></span>
+<span class="cp">##</span><span class="c">  Intercept                  -1.6341 3.1974 -0.51 0.6093  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  tch_prop                    2.1551 0.3628  5.94 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  total_ballots              -0.0002 0.0003 -0.83 0.4091  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  muni.dense                 -0.0022 0.0003 -6.84 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_male                    0.0483 0.0399  1.21 0.2254  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  inc_2015                   -0.0001 0.0000 -2.34 0.0193  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  unemp_rate                  0.0460 0.0658  0.70 0.4843  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  rep.perc2012                0.8566 0.0110 78.02 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  oth.perc2012                0.2255 0.1494  1.51 0.1314  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  votes_perc_trump_reprim     0.1666 0.0199  8.38 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  votes_perc_clinton_demprim  0.0279 0.0111  2.51 0.0120  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  age_med                     0.0641 0.0226  2.83 0.0046  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_white                   0.0983 0.0131  7.51 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  turnout_reg_2016           -0.3038 2.2538 -0.13 0.8928  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  sameday_reg_prop           -0.4566 2.0979 -0.22 0.8277  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  paper_prop                  0.3129 0.3835  0.82 0.4145  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  pct_graduate               -0.2225 0.0262 -8.49 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  counted_absent_prop        -9.9298 1.4157 -7.01 &lt;0.0001 </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  absentee_failed            -2.1485 1.5296 -1.40 0.1602  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  late_registrants           -0.9227 8.0957 -0.11 0.9093  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  inspector_prop             -5.4624 5.8736 -0.93 0.3525  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  absentee_person_prop        0.4748 0.4498  1.06 0.2912  </span><span class="x"></span>
+<span class="cp">##</span><span class="c">  registrants_change         -3.2295 1.1260 -2.87 0.0042  </span><span class="x"></span>
+<span class="cp">##</span><span class="c"> </span><span class="x"></span>
+</pre></div>
+
+
+</div>
+
+<p>The above model shows that going from 0 to 100% use of the AVC Edge touchscreen technology in a Wisconsin reporting unit had the effect of increasing the vote for Trump in 2016 by 2.16%. This finding is statistically significant (Pr(&gt;|t|) lower than 0.05).</p>
+<p>These findings do not prove conclusively that any voting machines in Wisconsin in 2016 were hacked or manipulated, they just suggest that further investigation of the machines is needed to confirm either way.</p>
       </article>
 
       <hr />
@@ -1237,14 +266,20 @@ cursor: pointer;
 
 
       <li>
+<a href="/avcedgetrump.html" rel="bookmark" title="Permalink to Influence of Sequoia AVC Edge touchscreen use on the Wisconsin Trump vote">Influence of Sequoia AVC Edge touchscreen use on the Wisconsin Trump vote</a>
+  <time datetime="2017-04-23T22:00:00+01:00" pubdate>Sun 23 April 2017</time>
+<p class="tags">tags: <a href="/tag/election2016.html">election2016</a></p></a>      </li>
+
+
+      <li>
 <a href="/wisconsinmuni.html" rel="bookmark" title="Permalink to Wisconsin voting machines and the Democrat vote">Wisconsin voting machines and the Democrat vote</a>
-  <time datetime="2017-01-10T20:05:00+02:00" pubdate>Tue 10 January 2017</time>
+  <time datetime="2017-01-10T20:05:00+00:00" pubdate>Tue 10 January 2017</time>
 <p class="tags">tags: <a href="/tag/election2016.html">election2016</a></p></a>      </li>
 
 
       <li>
 <a href="/wisconsincounty.html" rel="bookmark" title="Permalink to County-Level Analysis of the November 2016 Wisconsin election">County-Level Analysis of the November 2016 Wisconsin election</a>
-  <time datetime="2016-11-24T18:24:00+02:00" pubdate>Thu 24 November 2016</time>
+  <time datetime="2016-11-24T18:24:00+00:00" pubdate>Thu 24 November 2016</time>
 <p class="tags">tags: <a href="/tag/election2016.html">election2016</a></p></a>      </li>
 
 
@@ -1261,6 +296,7 @@ cursor: pointer;
 	            <h2>Categories</h2>
 	            <ul>
 	                <li ><a href="/category/2016-municipality-vote-analysis-wisconsin.html">2016 Municipality vote analysis Wisconsin</a></li>
+	                <li ><a href="/category/2016-wisconsin-reporting-units.html">2016 Wisconsin reporting units</a></li>
 	                <li ><a href="/category/2016-wisconsin-vote-analysis-at-the-county-level.html">2016 Wisconsin vote analysis at the county level</a></li>
 	                <li ><a href="/category/avc-edge-systems-and-trump.html">AVC Edge systems and Trump</a></li>
 	            </ul>

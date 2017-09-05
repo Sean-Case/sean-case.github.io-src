@@ -38,12 +38,21 @@
 		<h1>Wisconsin voting machines and the Democrat vote</h1>
 		
 <div class="metadata">
-  <time datetime="2017-01-10T20:05:00+02:00" pubdate>Tue 10 January 2017</time>
+  <time datetime="2017-01-10T20:05:00+00:00" pubdate>Tue 10 January 2017</time>
     <address class="vcard author">
       by <a class="url fn" href="/author/sean-case.html">Sean Case</a>
     </address>
   in <a href="/category/2016-municipality-vote-analysis-wisconsin.html">2016 Municipality vote analysis Wisconsin</a>
-<p class="tags">tagged <a href="/tag/election2016.html">election2016</a></p></div>		
+<p class="tags">tagged <a href="/tag/election2016.html">election2016</a></p></div>	
+	<!-- Load Facebook SDK for JavaScript -->
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+var js, fjs = d.getElementsByTagName(s)[0];
+if (d.getElementById(id)) return;
+js = d.createElement(s); js.id = id;
+js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.9";
+fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>		
 		<ul>
 <li>Comparing the same voting municipalities in 2012 and 2016, those using voting machines had a 4.6% greater drop in Democrat vote in 2016 compared to those not using voting machines.</li>
 <li>The presence of voting machines did not affect the Democrat vote in the 2012 presidential election, meaning that the voting machine effect was specific to the 2016 election.</li>
@@ -198,7 +207,7 @@ A note of caution: the outputs described here suggest that the presence of votin
 ##  Formula: ~log(votes.tot2016) + demwinner2012 | county
 ##  Structure: General positive-definite, Log-Cholesky parametrization
 ##                    StdDev    Corr         
-## (Intercept)        5.9418038 (Intr) l(.201
+## (Intercept)        5.9418042 (Intr) l(.201
 ## log(votes.tot2016) 0.7710069 -0.773       
 ## demwinner20121     2.4130244  0.848 -0.898
 ## Residual           5.1877929              
@@ -251,7 +260,7 @@ A note of caution: the outputs described here suggest that the presence of votin
 ## 
 ## Standardized Within-Group Residuals:
 ##         Min          Q1         Med          Q3         Max 
-## -3.82943018 -0.61414715 -0.01616615  0.60129549  4.58598011 
+## -3.82943018 -0.61414715 -0.01616616  0.60129549  4.58598011 
 ## 
 ## Number of Observations: 1846
 ## Number of Groups: 72
@@ -445,7 +454,7 @@ A note of caution: the outputs described here suggest that the presence of votin
 ##  Formula: ~log(votes.tot2016) | county
 ##  Structure: General positive-definite, Log-Cholesky parametrization
 ##                    StdDev    Corr  
-## (Intercept)        4.6536294 (Intr)
+## (Intercept)        4.6536295 (Intr)
 ## log(votes.tot2016) 0.7172024 -0.964
 ## Residual           4.2158415       
 ## 
@@ -554,7 +563,7 @@ A note of caution: the outputs described here suggest that the presence of votin
 ## 
 ## Standardized Within-Group Residuals:
 ##          Min           Q1          Med           Q3          Max 
-## -3.495205616 -0.615428954  0.006992738  0.608007911  6.401372628 
+## -3.495205614 -0.615428955  0.006992733  0.608007913  6.401372626 
 ## 
 ## Number of Observations: 1161
 ## Number of Groups: 47
@@ -636,7 +645,7 @@ A note of caution: the outputs described here suggest that the presence of votin
 ## 
 ## Fixed effects: list(dem2012.formula) 
 ##                                Value Std.Error   DF    t-value p-value
-## (Intercept)                100.60718  7.829308 1763  12.850073  0.0000
+## (Intercept)                100.60718  7.829308 1763  12.850072  0.0000
 ## inc_2015                    -0.00019  0.000030 1763  -6.456460  0.0000
 ## unemp_rate                   0.27925  0.066069 1763   4.226654  0.0000
 ## pct_male                    -0.40989  0.049650 1763  -8.255708  0.0000
@@ -698,9 +707,18 @@ A note of caution: the outputs described here suggest that the presence of votin
 	</article>
 
     <p>
-	<a href="https://twitter.com/share" class="twitter-share-button" data-via="" data-lang="en" data-size="large" data-related="">Tweet</a>
+	<a href="https://twitter.com/intent/tweet" class="twitter-share-button" data-via="" data-lang="en" data-size="large" data-related="">Tweet</a>
 	<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 	</p>
+	
+	<p>
+	<!-- Your share button code -->
+<div class="fb-like"
+data-href="https://sean-case.github.io/avcedgetrump.html"
+data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true">
+</div>
+	</p>
+	
 
 	<div class="comments">
 	<h2>Comments !</h2>
@@ -725,6 +743,7 @@ A note of caution: the outputs described here suggest that the presence of votin
 	            <h2>Categories</h2>
 	            <ul>
 	                <li class="active"><a href="/category/2016-municipality-vote-analysis-wisconsin.html">2016 Municipality vote analysis Wisconsin</a></li>
+	                <li ><a href="/category/2016-wisconsin-reporting-units.html">2016 Wisconsin reporting units</a></li>
 	                <li ><a href="/category/2016-wisconsin-vote-analysis-at-the-county-level.html">2016 Wisconsin vote analysis at the county level</a></li>
 	                <li ><a href="/category/avc-edge-systems-and-trump.html">AVC Edge systems and Trump</a></li>
 	            </ul>
