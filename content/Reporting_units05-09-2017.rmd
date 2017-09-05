@@ -183,8 +183,6 @@ A [previous analysis](https://sean-case.github.io/avcedgetrump.html) suggested t
 
 In the following analysis, the effect of the extent of the use of voting machines on the Presidential elections in 2012 and 2016 are compared against a number of county-level demographic variables, many provided by a very useful post about the 2016 election by [Thomas Cooley, Ben Griffy, and Peter Rupert at Economic Snapshot](https://econsnapshot.com/2016/12/06/electronic-voting-machines-and-the-election/), and some from David Greenwald (@davidegreenwald) and colleagues, who have also been [looking into the 2016 Wisconsin presidential election](https://docs.google.com/document/d/1BcJNx-Q3PYffy71XQxqGdYcM5gf7m16r8bgSQT16fi0/edit#). Voting machine presence and make data at the municipality level was taken from [Verified Voting](http://verifiedvoting.org). The spatial data used for the maps was taken from the ['GeoData@Wisconsin' site, hosted by the University of Wisconsin - Madison](http://maps.sco.wisc.edu/opengeoportal/). Finally, the vote and registered voter data was taken from the [Wisconsin Elections Commission](http://elections.wi.gov).
 
-## Overview of voting machine effect on the Republican vote 2016
-
 # Proportion of touchscreens used in reporting units with AVC Edge vs none
 <a id="displayText101" class = "button" href="javascript:toggle(101);">Hide graph and data</a>
   <div id="toggleText101" style="display: block">
@@ -226,10 +224,10 @@ options(scipen = 999)
        colnames(tch.dem.change.cast) = c("Won by Dems in 2012","Voting machines used by over 25% of people?","Republican vote (%)")
  kable(tch.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
 
- tch.demwin.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop) & !is.na(model.o.df$density_levels) & !is.na(model.o.df$demwinner2012),], melt(data.frame(tch_prop_split,demwinner2012,density_levels,republican_votes.perc)))
-     tch.demwin.dem.change.cast = dcast(tch.demwin.dem.change.melt, density_levels+tch_prop_split~demwinner2012+variable, mean,na.rm=T)
-     colnames(tch.demwin.dem.change.cast) = c("Population density (ppl / km2)","Voting machines used by over 25% of people?","Vote Republicans 2016 (%) - areas Dem lost 2012","Vote Republicans 2016 (%) - areas Dem won 2012")
- kable(tch.demwin.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+ # tch.demwin.dem.change.melt = with(model.o.df[!is.na(model.o.df$tch_prop) & !is.na(model.o.df$density_levels) & !is.na(model.o.df$demwinner2012),], melt(data.frame(tch_prop_split,demwinner2012,density_levels,republican_votes.perc)))
+ #     tch.demwin.dem.change.cast = dcast(tch.demwin.dem.change.melt, density_levels+tch_prop_split~demwinner2012+variable, mean,na.rm=T)
+ #     colnames(tch.demwin.dem.change.cast) = c("Population density (ppl / km2)","Voting machines used by over 25% of people?","Vote Republicans 2016 (%) - areas Dem lost 2012","Vote Republicans 2016 (%) - areas Dem won 2012")
+ # kable(tch.demwin.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
 
    # model.o.large.df = subset(model.o.df, total_ballots > 1200)
    
@@ -286,7 +284,7 @@ ols2 <- ols(log.formula, data=model.o.df, x=TRUE, y=TRUE)
 # print(ols2)
 # Second, the cluster-robust covariance is called
 cov <- robcov(ols2, cluster=model.o.df$muni_county)
-print(cov)
+cov
 # print(cov$var)
 # AIC(cov)
 # vif(cov)
