@@ -1,0 +1,330 @@
+---
+title: Republican vote 2016 with voting machines at reporting unit level
+author: Sean Case
+date: 2017-09-23 15:00
+slug: reporting_unit
+category: Reporting unit level WI analysis
+tags: election2016
+summary:
+* The use of voting machines in Wisconsin is statistically significant in increasing the vote % for Trump at the reporting unit level.
+* The size of the effect suggests that voting machine use could explain up to 13,000 votes being changed.
+---
+  <script language="javascript">
+    function toggle(num) {
+      var ele = document.getElementById("toggleText" + num);
+      var text = document.getElementById("displayText" + num);
+      if(ele.style.display == "block") {
+        ele.style.display = "none";
+        text.innerHTML = "Show";
+      }
+      else {
+        ele.style.display = "block";
+        text.innerHTML = "Hide";
+      }
+   }
+  </script>
+
+<style type="text/css">
+.button {
+border: 1px solid black;
+padding: 2px;
+color: black;
+border-radius: 5px;
+background-color: Gainsboro;
+text-decoration: none;
+}
+
+.button:hover {
+color: darkgrey;
+cursor: pointer;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Custom css styling above from: https://support.rstudio.com/hc/en-us/community/posts/200655456-Custom-styling-when-knitting-html-
+
+# setwd("https://github.com/Sean-Case/WisconsinElection2016")
+require(dplyr);require(plyr); require(ggplot2); require(nlme); require(car); require(reshape2); require(Hmisc);require(knitr); require(corrplot); require(rms); require(effects); require(tidyr); require(gmodels);
+
+setwd("C:\\Users\\s_cas\\Dropbox\\Perso\\2016 voting election county results\\Wisconsin\\Model Refinement Feb 2016\\")
+getwd()
+
+# https://www.r-bloggers.com/using-and-interpreting-different-contrasts-in-linear-models-in-r/
+# options(contrasts=c('contr.sum','contr.poly'))
+options(contrasts=c('contr.treatment','contr.poly'))
+
+model.r.df = read.csv("modeldfward.repunit.r.csv",stringsAsFactors = F)
+
+# str(model.r.df)
+
+# Only keep municipalities with 20 or more people voting - below this is too skewed
+    model.r.df = subset(model.r.df, total_ballots > 19)
+    model.r.df = subset(model.r.df, turnout_reg_2016 > .25)
+    model.r.df = subset(model.r.df, rep.change.perc > -40)
+    # model.r.df = subset(model.r.df, muni.dense >= 25)
+    # model.r.df = subset(model.r.df, muni.dense <= 600)
+
+model.r.df$tch_prop_split = with(model.r.df, ifelse(tch_prop <= 0.25, 0, 1)); model.r.df$demwinner2012 = with(model.r.df, ifelse(demwinner2012 == 1 , "yes", model.r.df$demwinner2012))
+model.r.df$turnout_highlow = with(model.r.df, ifelse(turnout_reg_2016 <= 0.85, 0, 1))
+model.r.df$density_levels = with(model.r.df, ifelse(muni.dense < 50, "< 50", 1)); model.r.df$demwinner2012 = with(model.r.df, ifelse(demwinner2012 == 0, "no", demwinner2012))
+model.r.df$density_levels = with(model.r.df, ifelse(muni.dense >= 50, "50 - 200", model.r.df$density_levels))
+model.r.df$density_levels = with(model.r.df, ifelse(muni.dense >= 200, "Two hundred +", model.r.df$density_levels))
+
+model.r.df$vote_levels = with(model.r.df, ifelse(total_ballots < 500, "< 500", 1))
+model.r.df$vote_levels = with(model.r.df, ifelse(total_ballots >= 500, "500 - 1000", 1))
+model.r.df$vote_levels = with(model.r.df, ifelse(total_ballots >= 1000, "1000 +", model.r.df$vote_levels))
+# model.r.df$vote_levels = ordered(model.r.df$vote_levels,levels = c("< 500","500 - 1000","1000 +"))
+
+model.r.df$turnout_levels = with(model.r.df, ifelse(turnout_reg_2016 < .80, "< 80", 1))
+model.r.df$turnout_levels = with(model.r.df, ifelse(turnout_reg_2016 >= .80, "80 - 89", model.r.df$turnout_levels))
+model.r.df$turnout_levels = with(model.r.df, ifelse(turnout_reg_2016 >= .90, "90 - 94", model.r.df$turnout_levels))
+model.r.df$turnout_levels = with(model.r.df, ifelse(turnout_reg_2016 >= .95, "95 +", model.r.df$turnout_levels))
+
+model.r.df$most_likely_places = NA
+model.r.df$most_likely_places = with(model.r.df, ifelse(!is.na(total_ballots) & !is.na(tch_prop_split) & !is.na(tch_model_off_full) & !is.na(demwinner2012),0,most_likely_places))
+model.r.df$most_likely_places = with(model.r.df, ifelse(total_ballots < 1000 & tch_prop_split == 1 & tch_model_off_full == "Dominion (Sequoia)/Command Central-Edge" & demwinner2012 == "yes",1,most_likely_places))
+
+  model.r.df$tch_model_off[model.r.df$tch_model_off == "Dominion (Sequoia)/Command Central-Edge; ES&S Automark"] = "Dominion (Sequoia)/Command Central-Edge"
+  model.r.df$tch_model_off_full[model.r.df$tch_model_off_full == "Dominion (Sequoia)/Command Central-Edge; ES&S Automark"] = "Dominion (Sequoia)/Command Central-Edge"
+  
+  # model.r.df = subset(model.r.df, tch_model_off_full == "Dominion (Sequoia)/Command Central-Edge" | tch_model_off_full == "aNone")
+  
+  machineplusnonevotes = sum(model.r.df$total_ballots)
+  machinevotes = sum(model.r.df$total_ballots[model.r.df$tch_model_off_full == "Dominion (Sequoia)/Command Central-Edge"])
+  
+  #299,503 votes recorded on DRE
+  machinevotesflipped = 299503 * 0.0216
+  
+model.r.df$tch_used = NA
+model.r.df$tch_used = with(model.r.df, ifelse(tch_prop > 0, "yes", tch_used))
+model.r.df$tch_used = with(model.r.df, ifelse(tch_prop == 0, "no", tch_used))
+
+model.r.df$tch_used_2012 = NA
+model.r.df$tch_used_2012 = with(model.r.df, ifelse(tch_prop_2012 > 0, "yes", tch_used_2012))
+model.r.df$tch_used_2012 = with(model.r.df, ifelse(tch_prop_2012 == 0, "no", tch_used_2012))
+
+  # remove "Dominion (Premier)-Accuvote TSX"
+
+    model.r.df$tch_model_off_true = NA
+    model.r.df$tch_model_off_true = ifelse(model.r.df$tch_prop > 0 & !is.na(model.r.df$tch_use_off_true), model.r.df$tch_model_off_full, "aNone")
+
+    model.r.df$turnout_reg_2016[model.r.df$turnout_reg_2016 > 1] = 1;
+    model.r.df$tch_prop = ifelse(model.r.df$tch_prop > 1 & model.r.df$tch_model_off_full == "aNone",NA,model.r.df$tch_prop)
+    
+                model.r.df$tch_prop = ifelse(model.r.df$tch_prop > 1, 1,model.r.df$tch_prop)
+    model.r.df$os_prop = ifelse(model.r.df$os_prop > 1, 1,model.r.df$os_prop)
+    model.r.df$paper_prop = ifelse(model.r.df$paper_prop > 1, 1,model.r.df$paper_prop)
+    
+     # model.r.df$turnout_reg_2016[model.r.df$turnout_reg_2016 < 0.6] = NA
+    model.r.df$sameday_reg_prop[model.r.df$sameday_reg_prop > 1] = NA
+    model.r.df$counted_absent_prop[model.r.df$counted_absent_prop > 1] = NA
+    model.r.df$rejected_absent_prop[model.r.df$rejected_absent_prop > 1] = NA;
+    model.r.df$late_registrants[model.r.df$late_registrants > 1] = NA
+    model.r.df$registrants_change = (model.r.df$registrants - model.r.df$registrants_2012) / model.r.df$registrants_2012
+    model.r.df$registrants_change[model.r.df$registrants_change > 1] = NA
+    model.r.df$absentee_failed = with(model.r.df, rejected_absent_prop + absentee_undeliverable)
+
+    # model.r.df$sameday_reg_prop = log(model.r.df$sameday_reg_prop + 1) # Because there are a few big large outliers
+    # model.r.df$counted_absent_prop = log(model.r.df$counted_absent_prop + 1)
+    # model.r.df$rejected_absent_prop = log(model.r.df$rejected_absent_prop + 1)
+    # model.r.df$turnout_reg_2016 = log(model.r.df$turnout_reg_2016 + 1)
+    
+        model.r.df[model.r.df == Inf] = NA
+        model.r.df[model.r.df == -Inf] = NA
+        
+          model.r.df$ballots_counted_at = with(model.r.df, ifelse(ballots_counted_at == "Polling Place", "a:Polling Place", ballots_counted_at))
+    model.r.df$ballots_counted_at = with(model.r.df, ifelse(ballots_counted_at == "Polling Place with Central Count Absentee", "b:Polling Place with Central Count Absentee", ballots_counted_at))
+     model.r.df$ballots_counted_at = with(model.r.df, ifelse(ballots_counted_at == "Central Count", "c:Central Count", ballots_counted_at))
+     
+     model.r.df$winner_vote = NA
+     model.r.df$winner_vote = ifelse(model.r.df$demwinner == 1, model.r.df$republican_votes.perc, model.r.df$winner_vote)
+model.r.df$winner_vote = ifelse(model.r.df$demwinner == 1, model.r.df$democrat_votes.perc, model.r.df$winner_vote)
+     
+  tch.model.r.df = subset(model.r.df, tch_prop > 0)
+  tch.model.r.df[tch.model.r.df == -Inf] = NA
+  tch.model.r.df[tch.model.r.df == Inf] = NA
+    tch.model.r.df$tch_model_off_full = as.factor(as.character(tch.model.r.df$tch_model_off_full))
+    
+    # Effect when added to end of basic model (OUT OF DATE)
+    #                               Coef  SE      T   P-value
+    # tch_prop * dem.perc2012    -0.1143 0.0487 -2.35 0.0189  *
+    # muni.dense * tch_prop       0.0044 0.0043  1.03 0.3015  
+    # turnout_reg_2016 * tch_prop 12.9476 7.7612  1.67 0.0955  .
+    # total_ballots * tch_prop    0.0003 0.0004  0.69 0.4899
+    # pct_male * tch_prop         0.0055 0.0861  0.06 0.9492
+    # pct_black * tch_prop        0.2061 0.2187  0.94 0.3461
+    # inc_2015 * tch_prop         0.0000 0.0001 -0.07 0.9462 
+    # unemp_rate * tch_prop      -0.0219 0.1396 -0.16 0.8754
+    # oth.perc2012 * tch_prop     0.3622 0.5504  0.66 0.5105
+    # age_med * tch_prop         -0.0471 0.0485 -0.97 0.3322  
+    # pct_latino * tch_prop       0.0758 0.0880  0.86 0.3891  
+    # pct_white * tch_prop       -0.0156 0.0411 -0.38 0.7046 
+    # sameday_reg_prop * tch_prop  7.4031 5.1366  1.44 0.1497 
+    # tch_prop * pct_graduate     0.0119 0.0473  0.25 0.8017 
+    # tch_prop * rejected_absent_prop   5.5591 13.0727  0.43 0.6707 
+    # tch_prop * counted_absent_prop -4.9427 5.9104 -0.84 0.4031
+    # tch_prop * late_registrants  2.1911 22.2825  0.10 0.9217
+    # tch_prop * votes_perc_trump_reprim -0.0024 0.0461 -0.05 0.9584
+    # tch_prop * votes_perc_clinton_demprim -0.0747 0.0524 -1.43 0.1540
+    
+    # str(model.r.df$most_likely_places)
+    
+fin.formula = formula(republican_votes.perc ~ tch_prop + total_ballots + 
+                        muni.dense + pct_male + inc_2015 + unemp_rate + rep.perc2012 + oth.perc2012 +                         votes_perc_trump_reprim + votes_perc_clinton_demprim + 
+                        age_med + pct_white + turnout_reg_2016 + sameday_reg_prop +
+                          paper_prop + pct_graduate  + counted_absent_prop + absentee_failed + 
+                         late_registrants + 
+                         inspector_prop + absentee_person_prop  + registrants_change # ballots_counted_at  + pct_black + pct_latino + tch_prop_2012_2016_diff + tch_prop_reprim_diff +  os_use_off
+                      )
+
+```
+
+*P.S. Interactive online Carto maps of [the vote in 2016](https://seancase.carto.com/builder/aef18204-cf53-11e6-af7f-0e3ff518bd15) and [the change in vote from 2012 to 2016](https://seancase.carto.com/builder/d3c82dbe-99c8-4543-b467-490bd748d88d) accompany these posts (municipality level). Go play with the data! Also, the code underlying the analysis described here can be found at [Github](https://github.com/Sean-Case/WisconsinElection2016). The .csv file used in the models on this page are named modeldfward.repunit.r.csv (original data).*
+
+# Introduction
+A [previous analysis](https://sean-case.github.io/avcedgetrump.html) suggested that the Wisconsin 2016 vote may have been affected by the extent of the use of the AVC Edge voting machine (also known as touchscreen voting systems, or direct recording electronic voting machine). However, this analysis was conducted at the municipality level. In this short post, I will show that these results hold also at the reporting unit level. This analysis uses the data from the recount. This analysis here includes not only the AVC Edge (used in 45 of Wisconsin's 72 counties), but also the other brands of voting machines used at a much lesser extent (the Accuvote TSX, municipalities in 13 counties, and the ES&S iVotronic, 2 counties)
+
+*A note of caution: the outputs described here suggest that the use of voting machines could be a PREDICTOR of an increased or decreased vote for Republican as determined by the statistical model. We cannot know from this alone if the voting machine were manipulated in any way, it only suggests that further investigation is necessary to determine the cause of this effect.*
+
+In the following analysis, the effect of the use of voting machines on the Presidential election in 2016 are compared against a number of county-level demographic variables, many provided by a very useful post about the 2016 election by [Thomas Cooley, Ben Griffy, and Peter Rupert at Economic Snapshot](https://econsnapshot.com/2016/12/06/electronic-voting-machines-and-the-election/), and some from David Greenwald (@davidegreenwald) and colleagues, who have also been [looking into the 2016 Wisconsin presidential election](https://docs.google.com/document/d/1BcJNx-Q3PYffy71XQxqGdYcM5gf7m16r8bgSQT16fi0/edit#). Voting machine presence and make data at the municipality level was taken from [Verified Voting](http://verifiedvoting.rrg). The spatial data used for the maps was taken from the ['GeoData@Wisconsin' site, hosted by the University of Wisconsin - Madison](http://maps.sco.wisc.edu/opengeoportal/). Finally, the vote and registered voter data was taken from the [Wisconsin Elections Commission](http://elections.wi.gov).
+
+*One final note - to remove potentially influential outliers I removed reporting units with less than 20 votes cast, with a turnout lower than 25%, and where the vote % for Republicans reduced by 40% or more compared to 2012.*
+
+# Proportion of touchscreens used in reporting units with voting machine vs none
+
+First, some graphs to show the vote for Trump in 2016 against the change in Republican vote 2012-2016, reporting unit size, population density, and voter turnout.
+
+<a id="displayText101" class = "button" href="javascript:toggle(101);">Hide graph and data</a>
+  <div id="toggleText101" style="display: block">
+```{r olsmodelgraphs, echo=FALSE, fig.align='center', message=FALSE, warning=FALSE}
+    model.r.df$os_use_off = as.factor(model.r.df$os_use_off)
+model.r.df$tch_use_off_true = as.factor(model.r.df$tch_use_off_true)
+model.r.df$county = as.factor(model.r.df$county)
+model.r.df$demwinner2012 = as.factor(model.r.df$demwinner2012)
+model.r.df$tch_prop_split = as.factor(model.r.df$tch_prop_split)
+model.r.df$density_levels = as.factor(model.r.df$density_levels)
+model.r.df$turnout_levels = as.factor(model.r.df$turnout_levels)
+model.r.df$ballots_counted_at = as.factor(model.r.df$ballots_counted_at)
+
+options(scipen = 999)
+
+# Rep change perc vs Rep vote perc 2016
+     dem.tchuse.change.percvote = ggplot(data = model.r.df,#[ #                 !is.na(model.r.df$tch_prop)& !is.na(model.r.df$demwinner2012),],
+                                                      aes(x = rep.change.perc,
+                                                             y = republican_votes.perc, colour = tch_prop_split)) +
+                                                          #group = demwinner2012)) +
+                                                          #shape = factor(tch_model_off))) +
+    geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
+          geom_smooth(alpha = 0.5,size = 1) +
+        scale_y_continuous(name = "Republican vote 2016 (%)") +
+  scale_x_continuous(name = "Change in Republican vote 2012 - 2016") +#"Proportion of votes from voting machines 0 to 100%\nOn top: Democrat won in 2012")+
+  # scale_fill_discrete(name = "
+  #                     Population density (ppl / km2) in municipality (log, people / km)") +
+            scale_colour_discrete(name = "Percentage of votes from\n voting machines\n 0 = < 25%, 1 = > 25%") +
+            # facet_wrap(~demwinner2012,nrow=1) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  dem.tchuse.change.percvote
+  
+
+          dem.tchuse.ballots.percvote = ggplot(data = model.r.df,#[ #                 !is.na(model.r.df$tch_prop)& !is.na(model.r.df$demwinner2012),],
+                                                      aes(x = log(total_ballots),
+                                                             y = republican_votes.perc, colour = tch_prop_split)) +
+                                                          #group = demwinner2012)) +
+                                                          #shape = factor(tch_model_off))) +
+    geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
+          geom_smooth(alpha = 0.5,size = 1) +
+        scale_y_continuous(name = "Republican vote 2016 (%)") +
+  scale_x_continuous(name = "log(Total number of ballots in reporting unit)") +#"Proportion of votes from voting machines 0 to 100%\nOn top: Democrat won in 2012")+
+  # scale_fill_discrete(name = "
+  #                     Population ballots (ppl / km2) in municipality (log, people / km)") +
+            scale_colour_discrete(name = "Percentage of votes from\n voting machines\n 0 = < 25%, 1 = > 25%") +
+            # facet_wrap(~demwinner2012,nrow=1) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  dem.tchuse.ballots.percvote
+  
+  
+          dem.tchuse.density.percvote = ggplot(data = model.r.df,#[ #                 !is.na(model.r.df$tch_prop)& !is.na(model.r.df$demwinner2012),],
+                                                      aes(x = log(muni.dense),
+                                                             y = republican_votes.perc, colour = tch_prop_split)) +
+                                                          #group = demwinner2012)) +
+                                                          #shape = factor(tch_model_off))) +
+    geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
+          geom_smooth(alpha = 0.5,size = 1) +
+        scale_y_continuous(name = "Republican vote 2016 (%)") +
+  scale_x_continuous(name = "log(population density)") +#"Proportion of votes from voting machines 0 to 100%\nOn top: Democrat won in 2012")+
+  # scale_fill_discrete(name = "
+  #                     Population density (ppl / km2) in municipality (log, people / km)") +
+            scale_colour_discrete(name = "Percentage of votes from\n voting machines\n 0 = < 25%, 1 = > 25%") +
+            # facet_wrap(~demwinner2012,nrow=1) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  dem.tchuse.density.percvote
+
+ #   tch.dem.change.cast = dcast(tch.dem.change.melt, demwinner2012+tch_prop_split ~variable, mean,na.rm=T)
+ #       colnames(tch.dem.change.cast) = c("Won by Dems in 2012","voting machine used by over 25% of people?","Republican vote (%)")
+ # kable(tch.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+
+ # tch.demwin.dem.change.melt = with(model.r.df[!is.na(model.r.df$tch_prop) & !is.na(model.r.df$density_levels) & !is.na(model.r.df$demwinner2012),], melt(data.frame(tch_prop_split,demwinner2012,density_levels,republican_votes.perc)))
+ #     tch.demwin.dem.change.cast = dcast(tch.demwin.dem.change.melt, density_levels+tch_prop_split~demwinner2012+variable, mean,na.rm=T)
+ #     colnames(tch.demwin.dem.change.cast) = c("Population density (ppl / km2)","voting machine used by over 25% of people?","Vote Republicans 2016 (%) - areas Dem lost 2012","Vote Republicans 2016 (%) - areas Dem won 2012")
+ # kable(tch.demwin.dem.change.cast,digits = 1, format = "markdown",padding = 0, align = "c")
+
+   # model.r.large.df = subset(model.r.df, total_ballots > 1200)
+   
+    dem.winnervote = ggplot(data = model.r.df[!is.na(model.r.df$density_levels) &
+                                                       !is.na(model.r.df$turnout_reg_2016) &!is.na(model.r.df$demwinner),],
+                                                       aes(x = turnout_reg_2016,
+                                                              y = republican_votes.perc, colour = tch_prop_split)) +
+                                                           # shape = tch_prop_split +
+     geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
+           geom_smooth(alpha = 0.5) +
+         scale_y_continuous(name = "Republican vote 2016 (%)") +
+   scale_x_continuous(name = "Voter turnout %") +
+   scale_colour_discrete(name = "Percentage of votes from\n voting machines\n 0 = < 25%, 1 = > 25%") +
+       theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+   dem.winnervote
+   
+      tch.dem.change.melt = with(model.r.df[!is.na(model.r.df$tch_prop) & !is.na(model.r.df$density_levels) & !is.na(model.r.df$demwinner2012),], melt(data.frame(demwinner2012, density_levels,tch_prop_split,republican_votes.perc)))
+     tch.dem.change.cast.simple = dcast(tch.dem.change.melt, tch_prop_split ~variable, mean,na.rm=T)
+   colnames(tch.dem.change.cast.simple) = c("voting machine used by over 25% of people?","Republican vote (%)")
+   kable(tch.dem.change.cast.simple,digits = 1, format = "markdown",padding = 0, align = "c")
+
+
+```
+
+</div>
+
+
+## Republican 2016 vote
+
+<a id="displayText1" class = "button" href="javascript:toggle(1);">Show model code</a>
+  <div id="toggleText1" style="display: block">
+```{r olsmodel1, echo=FALSE, warning = FALSE, fig.align='center'}
+log.formula = fin.formula
+# log.formula = update(fin.formula, republican_votes.perc ~. + pct_black*registrants_change)
+# log.formula = update(fin.formula, republican_votes.perc ~. + tch_prop + demwinner2012 + sameday_reg_prop*demwinner2012*tch_prop)
+
+
+  # ols1 = lm(demwin.formula, data = model.r.df, na.action = na.exclude)
+   # summary(ols1)
+  # AIC(ols1)
+
+ols2 <- ols(log.formula, data=model.r.df, x=TRUE, y=TRUE)
+# print(ols2)
+# Second, the cluster-robust covariance is called
+cov <- robcov(ols2, cluster=model.r.df$county)
+cov
+# print(cov$var)
+# AIC(cov)
+# vif(cov)
+```
+
+</div>
+
+The below model compares the factors that may have affected the votes for Trump in 2016. The 'use of voting machine' factors is called 'tch_prop' (at the top), and represents the proportion of votes conducted by voting machine in the reporting unit. The other factors in the model cover a number of election-related and demographic variables. The model is a robust linear regression with errors clustered around county. Email or tweet me if you want full details.
+
+In summary, the model shows that going from 0 to 100% use of the voting machine touchscreen technology in a Wisconsin reporting unit had the effect of increasing the vote for Trump in 2016 by 2.17%. This finding is statistically significant (Pr(>|t|) lower than 0.05). Considering the number of votes conducted using voting machine technology in in Wisconsin 2016 (299,503), this would be equivalent to approximately 6,500 votes potentially being flipped, i.e. giving ~ 13,000 votes to Trump. Trump won the state by 22,748 votes (post recount).
+
+These findings do not prove conclusively that any voting machine in Wisconsin in 2016 were hacked or manipulated, they just suggest that further investigation of the machines and the election management systems is needed to confirm either way.
+
