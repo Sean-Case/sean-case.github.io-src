@@ -197,47 +197,9 @@ cursor: pointer;
 
 <h1>Statistically comparing the optical scanner brands and counties</h1>
 <p>Now that we have done some initial data exploration to compare the optical scanner brands and their use in the Wisconsin counties, we can bring in some statistical models to see if there are any <strong>real</strong> differences worth worrying about. Most of the models in the following section are robust linear regressions, with errors clustered around county.</p>
-<!-- <a id="displayText199" class = "button" href="javascript:toggle(199);">Show model code</a> -->
-
-<!--   <div id="toggleText199" style="display: block"> -->
-
-<!-- ```{r olsmodel99, echo=FALSE, warning = FALSE, fig.align='center'} -->
-
-<!-- model.formula = formula(turnout_change_perc ~ os_model_con)#*dem.perc2012) -->
-
-<!-- # log.formula = update(fin.formula, republican_votes.perc ~. + pct_black*registrants_change) -->
-
-<!-- # log.formula = update(fin.formula, republican_votes.perc ~. + tch_prop + demwinner2012 + sameday_reg_prop*demwinner2012*tch_prop) -->
-
-<!--   # ols1 = lm(model.formula, data = county.full.df, na.action = na.exclude) -->
-
-<!--    # summary(ols1) -->
-
-<!--   # AIC(ols1) -->
-
-<!-- ols2 <- ols(model.formula, data=county.full.df, x=TRUE, y=TRUE) -->
-
-<!-- # print(ols2) -->
-
-<!-- # Second, the cluster-robust covariance is called -->
-
-<!-- cov <- robcov(ols2, cluster=county.full.df$county) -->
-
-<!-- cov -->
-
-<!-- # print(cov$var) -->
-
-<!-- # AIC(cov) -->
-
-<!-- # vif(cov) -->
-
-<!-- ``` -->
-
-<!-- </div> -->
-
 <p>The first model below shows the influence of the optical scanner model on the voter turnout change 2012-2016, and whether this is different in areas that voted more for Barack Obama in 2012. The term <strong>os_model_con=Optech Eagle * dem.perc2012</strong> below has a statistically significant effect (p &lt; 0.05, large t value). It also shows that the ES&amp;S D200, used in Milwaukee, is statistically significant in a similar way (os_model_con=ES&amp;S DS200 * dem.perc2012 term), however it has a much weaker effect than the Optech Eagle (lower t value).  </p>
 <p><a id="displayText1999" class = "button" href="javascript:toggle(1999);">Show model code</a>
-  <div id="toggleText1999" style="display: block"></p>
+  <div id="toggleText1999" style="display: none"></p>
 <div class="highlight"><pre><span></span><span class="cp">##</span><span class="c"> Frequencies of Missing Values Due to Each Variable</span><span class="x"></span>
 <span class="cp">##</span><span class="c"> turnout_change_perc        os_model_con        dem.perc2012 </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                   7                   0                   0 </span><span class="x"></span>
@@ -300,7 +262,7 @@ cursor: pointer;
 
 <p>Is the effect of the Optech Eagle the same in the 51 counties that were hand recounted as in the 21 counties that were not? The following model shows that hand-recounted counties (<strong>rehandcounted_countiesyes</strong>) had a greater voter turnout, and that the presence of the Optech Eagle was linked to reduced voter turnout (<strong>os_model_optechyes</strong>). However, the Optech Eagle did not have a statistically significantly different effect depending on whether they were placed in a hand recounted county or not.</p>
 <p><a id="displayText200" class = "button" href="javascript:toggle(200);">Show model code</a>
-  <div id="toggleText200" style="display: block"></p>
+  <div id="toggleText200" style="display: none"></p>
 <div class="highlight"><pre><span></span>## 
 ## Call:
 ## lm(formula = model.formula, data = county.full.df, na.action = na.exclude)
@@ -332,51 +294,9 @@ cursor: pointer;
 
 </div>
 
-<!-- <a id="displayText1001" class = "button" href="javascript:toggle(1001);">Show model code</a> -->
-
-<!--   <div id="toggleText1001" style="display: block"> -->
-
-<!-- ```{r olsmodel1, echo=FALSE, warning = FALSE, fig.align='center'} -->
-
-<!-- # log.formula = fin.formula -->
-
-<!-- model.formula = formula(turnout_change_perc ~ os_model_con*rehandcounted_counties) -->
-
-<!--  #log.formula = update(fin.formula, turnout_change_perc ~. + os_model_con*rehandcounted_counties) -->
-
-<!-- # log.formula = update(fin.formula, republican_votes.perc ~. + pct_black*registrants_change) -->
-
-<!-- # log.formula = update(fin.formula, republican_votes.perc ~. + tch_prop + demwinner2012 + sameday_reg_prop*demwinner2012*tch_prop) -->
-
-<!--   # ols1 = lm(model.formula, data = county.full.df, na.action = na.exclude) -->
-
-<!--    # summary(ols1) -->
-
-<!--   # AIC(ols1) -->
-
-<!-- ols2 <- ols(model.formula, data=county.full.df, x=TRUE, y=TRUE) -->
-
-<!-- # print(ols2) -->
-
-<!-- # Second, the cluster-robust covariance is called -->
-
-<!-- cov <- robcov(ols2, cluster=county.full.df$county) -->
-
-<!-- cov -->
-
-<!-- # print(cov$var) -->
-
-<!-- # AIC(cov) -->
-
-<!-- # vif(cov) -->
-
-<!-- ``` -->
-
-<!-- </div> -->
-
 <p>The above finding is contradicted however when we add a number of voting and demographic variables alongside the optical scanning technology and recount variables. In the model below, <strong>rehandcounted_counties=yes * os_model_optech=yes</strong> is now statistically significant. It is worth looking into the effect of the Optech Eagle further.</p>
 <p><a id="displayText2" class = "button" href="javascript:toggle(2);">Show model code</a>
-  <div id="toggleText2" style="display: block"></p>
+  <div id="toggleText2" style="display: none"></p>
 <div class="highlight"><pre><span></span><span class="cp">##</span><span class="c"> Frequencies of Missing Values Due to Each Variable</span><span class="x"></span>
 <span class="cp">##</span><span class="c">        turnout_change_perc              total_ballots </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                          7                          0 </span><span class="x"></span>
@@ -479,55 +399,9 @@ cursor: pointer;
 
 </div>
 
-<!-- Only looking at areas that did not do the full hand recount -->
-
-<!-- <a id="displayText20" class = "button" href="javascript:toggle(20);">Show model code</a> -->
-
-<!--   <div id="toggleText20" style="display: block"> -->
-
-<!-- ```{r olsmodel2optechrecount2, echo=FALSE, warning = FALSE, fig.align='center'} -->
-
-<!-- county.formula = update(fin.formula, turnout_change_perc ~. - os_model_con - rehandcounted_counties+ os_model_optech)  -->
-
-<!-- # log.formula = update(fin.formula, republican_votes.perc ~. + pct_black*registrants_change) -->
-
-<!-- # log.formula = update(fin.formula, republican_votes.perc ~. + tch_prop + demwinner2012 + sameday_reg_prop*demwinner2012*tch_prop) -->
-
-<!-- #   ols1 = lm(county.formula, data = county.full.df, na.action = na.exclude) -->
-
-<!-- #   summary(ols1) -->
-
-<!--   # AIC(ols1) -->
-
-<!-- ols2 <- ols(county.formula, data=fullrecount.df, x=TRUE, y=TRUE) -->
-
-<!-- # print(ols2) -->
-
-<!-- # Second, the cluster-robust covariance is called -->
-
-<!-- cov <- robcov(ols2, cluster=fullrecount.df$county) -->
-
-<!-- cov -->
-
-<!-- # print(cov$var) -->
-
-<!-- # AIC(cov) -->
-
-<!-- # vif(cov) -->
-
-<!-- ``` -->
-
-<!-- </div> -->
-
-<!-- <a id="displayText201" class = "button" href="javascript:toggle(201);">Show model code</a> -->
-
-<!--   <div id="toggleText201" style="display: block"> -->
-
-<!-- </div> -->
-
 <p>Looking at the 21 counties that were not hand-recounted, do any stand out as having a particularly low voter turnout (compared with BROWN county, turnout change just around 0)? The following shows that Racine and Milwaukee counties had an unusally low voter turnout, event amongst counties that were not hand recounted.</p>
 <p><a id="displayText3" class = "button" href="javascript:toggle(3);">Show model code</a>
-  <div id="toggleText3" style="display: block"></p>
+  <div id="toggleText3" style="display: none"></p>
 <div class="highlight"><pre><span></span><span class="cp">##</span><span class="c"> Frequencies of Missing Values Due to Each Variable</span><span class="x"></span>
 <span class="cp">##</span><span class="c"> turnout_change_perc              county </span><span class="x"></span>
 <span class="cp">##</span><span class="c">                   2                   0 </span><span class="x"></span>
@@ -588,15 +462,16 @@ cursor: pointer;
 <p><img src="/figure/Reporting_units_EC_SBY_OUT_OPSCAN13-10-2017-subset-1.png" title="plot of chunk subset" alt="plot of chunk subset" style="display: block; margin: auto;" /></p>
 </div>
 
-<p>Below we compare the effect of optical scanners in three counties with the greatest drop in voter turnout according to municipality (Racine, Eau Claire, and Milkwaukee). Clearly we can see that the cities experienced the greatest drop.</p>
+<p>Below we compare the effect of optical scanners in four of the counties with the greatest drop in voter turnout according to municipality (Racine, Eau Claire, Kenosha, and Milkwaukee). They all used the Optech Eagle or the ES&amp;S D200 optical scanner. Two of them (Eau Claire and Kenosha) had the votes verified by a hand recount, while the two others (Racine and Milwaukee) did not.</p>
+<p>Clearly we can see that in these counties, the cities experienced the greatest drop in voter turnout between 2012-2016, regardless of whether they were hand recounted or not. We will look more closely at these cities.</p>
 <p><a id="displayText102" class = "button" href="javascript:toggle(102);">Hide graph and data</a>
   <div id="toggleText102" style="display: block">
 <img src="/figure/Reporting_units_EC_SBY_OUT_OPSCAN13-10-2017-subsetgraphs-1.png" title="plot of chunk subsetgraphs" alt="plot of chunk subsetgraphs" style="display: block; margin: auto;" /><img src="/figure/Reporting_units_EC_SBY_OUT_OPSCAN13-10-2017-subsetgraphs-2.png" title="plot of chunk subsetgraphs" alt="plot of chunk subsetgraphs" style="display: block; margin: auto;" /><img src="/figure/Reporting_units_EC_SBY_OUT_OPSCAN13-10-2017-subsetgraphs-3.png" title="plot of chunk subsetgraphs" alt="plot of chunk subsetgraphs" style="display: block; margin: auto;" /><img src="/figure/Reporting_units_EC_SBY_OUT_OPSCAN13-10-2017-subsetgraphs-4.png" title="plot of chunk subsetgraphs" alt="plot of chunk subsetgraphs" style="display: block; margin: auto;" /></p>
 </div>
 
 <p>Let's compare the cities statistically. Here is the city of Racine side by side with the city of Eau Claire. If the unverified, Racine results were different from the verified, Eau Claire results in any way, we would expect to see <strong>countyRACINE</strong> or <strong>countyRACINE:dem.perc2012</strong> to be statistically significant below. However, they are not. Only <strong>dem.perc2012</strong> is statistically significant, which means that the 2012 Democrat vote could explain the drop in voter turnout in both cities, not differences in the way the technology was used.</p>
-<p><a id="displayText1020" class = "button" href="javascript:toggle(1020);">Hide graph and data</a>
-  <div id="toggleText1020" style="display: block"></p>
+<p><a id="displayText10201" class = "button" href="javascript:toggle(10201);">Show model code</a>
+  <div id="toggleText10201" style="display: none"></p>
 <div class="highlight"><pre><span></span>## 
 ## Call:
 ## lm(formula = county.model.formula, data = model_racine_eauclaire, 
@@ -623,14 +498,15 @@ cursor: pointer;
 
 </div>
 
+<p>Here is a graph showing the difference in turnout between Eau Claire and Racine cities.</p>
 <p><a id="displayText10200" class = "button" href="javascript:toggle(10200);">Hide graph and data</a>
   <div id="toggleText10200" style="display: block">
 <img src="/figure/Reporting_units_EC_SBY_OUT_OPSCAN13-10-2017-model_racine_eauclaire_graph-1.png" title="plot of chunk model_racine_eauclaire_graph" alt="plot of chunk model_racine_eauclaire_graph" style="display: block; margin: auto;" /></p>
 </div>
 
 <p>I will do a similar analysis for two cities that used the ES&amp;S D200, and where the turnout dropped since 2012. These are Milwaukee city (vote not verified by hand during recount) vs Kenosha city (vote verified by hand during recount).</p>
-<p><a id="displayText1030" class = "button" href="javascript:toggle(1030);">Hide graph and data</a>
-  <div id="toggleText1030" style="display: block"></p>
+<p><a id="displayText1030" class = "button" href="javascript:toggle(1030);">Show model code</a>
+  <div id="toggleText1030" style="display: none"></p>
 <div class="highlight"><pre><span></span>## 
 ## Call:
 ## lm(formula = county.model.formula, data = model_milk_keno, na.action = na.exclude)
@@ -657,14 +533,15 @@ cursor: pointer;
 
 </div>
 
+<p>And here's a graph comparing Milwaukee city with Kenosha City.</p>
 <p><a id="displayText1040" class = "button" href="javascript:toggle(1040);">Hide graph and data</a>
   <div id="toggleText1040" style="display: block"></p>
 <p><img src="/figure/Reporting_units_EC_SBY_OUT_OPSCAN13-10-2017-model_milk_keno_graph-1.png" title="plot of chunk model_milk_keno_graph" alt="plot of chunk model_milk_keno_graph" style="display: block; margin: auto;" /></p>
 </div>
 
-<p>We can see the same if we compare the bottom four counties. Milwaukee and Racine are unverified, non-hand recounted cities, whereas Kenosha and Eau Claire are counties which had their results verified by a recount. In the below model, the fact of being hand recounted or not (<strong>rehandcounted_countiesyes</strong>) did not significantly effect the change in voter turnout 2012-2016, which suggests that the reduction in turnout was not manipulated in unverified cities.</p>
-<p><a id="displayText1050" class = "button" href="javascript:toggle(1050);">Hide graph and data</a>
-  <div id="toggleText1050" style="display: block"></p>
+<p>We can see similar results to the above if we compare the bottom four counties. Milwaukee and Racine are unverified, non-hand recounted cities, whereas Kenosha and Eau Claire are counties which had their results verified by a recount. In the below model, the fact of being hand recounted or not (<strong>rehandcounted_countiesyes</strong>) did not significantly effect the change in voter turnout 2012-2016, which suggests that the reduction in turnout was not manipulated in unverified cities.</p>
+<p><a id="displayText1050" class = "button" href="javascript:toggle(1050);">Show model code</a>
+  <div id="toggleText1050" style="display: none"></p>
 <div class="highlight"><pre><span></span>## 
 ## Call:
 ## lm(formula = county.model.formula, data = model_bottom4, na.action = na.exclude)
@@ -696,6 +573,7 @@ cursor: pointer;
 
 </div>
 
+<p>Finally, a graph of the four cities we have been comparing, side by side.</p>
 <p><a id="displayText1060" class = "button" href="javascript:toggle(1060);">Hide graph and data</a>
   <div id="toggleText1060" style="display: block"></p>
 <p><img src="/figure/Reporting_units_EC_SBY_OUT_OPSCAN13-10-2017-model_bottom4_graph-1.png" title="plot of chunk model_bottom4_graph" alt="plot of chunk model_bottom4_graph" style="display: block; margin: auto;" /></p>

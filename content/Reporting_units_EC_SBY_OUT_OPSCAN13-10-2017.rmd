@@ -312,7 +312,7 @@ The following graph and tables summarises the difference in turnout change (2012
 ```{r osmodelgraphsummary, echo=FALSE, fig.align='center', message=FALSE, warning=FALSE}
       dem.osvote = ggplot(data = model.r.df,
                                                        aes(x = os_model_con,
-                                                              y = turnout_change_perc, fill = os_model_con)) +
+                                                              y = turnout_change_perc * 100, fill = os_model_con)) +
                                                            # shape = os_prop_split +
      geom_violin(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
          scale_y_continuous(name = "Change in turnout 2012 - 2016 (%)") +
@@ -341,7 +341,7 @@ The following graphs compare the change in turnout 2012-2016 between optical sca
 ```{r osmodelgraphcompared, echo=FALSE, fig.align='center', message=FALSE, warning=FALSE}
        dem.osuse.percvote = ggplot(data = model.r.df,
                                                       aes(x = dem.perc2012,
-                                                             y = turnout_change_perc, colour = os_model_con)) +
+                                                             y = turnout_change_perc * 100, colour = os_model_con)) +
                                                           #group = demwinner2012)) +
                                                           #shape = factor(os_model_off))) +
     geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
@@ -358,7 +358,7 @@ The following graphs compare the change in turnout 2012-2016 between optical sca
   
           osuse.density.percvote = ggplot(data = model.r.df,
                                                       aes(x = muni.dense,
-                                                             y = turnout_change_perc, colour = os_model_con)) +
+                                                             y = turnout_change_perc * 100, colour = os_model_con)) +
                                                           #group = demwinner2012)) +
                                                           #shape = factor(os_model_off))) +
     geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
@@ -389,7 +389,7 @@ It can be seen that two of the counties that had the greatest drop in turnout be
   # Rep change perc vs counties
      county.osuse.change.percvote.bot = ggplot(data = sub.county.full.df.bot,#[ #                 !is.na(model.r.df$os_prop)& !is.na(model.r.df$demwinner2012),],
                                                       aes(x = as.factor(ordered.turnout_change_perc.county),
-                                                             y = turnout_change_perc, fill = os_model_con, colour = rehandcounted_counties)) +
+                                                             y = turnout_change_perc * 100, fill = os_model_con, colour = rehandcounted_counties)) +
                                                           #group = demwinner2012)) +
                                                           #shape = factor(os_model_off))) +
     # geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
@@ -407,7 +407,7 @@ It can be seen that two of the counties that had the greatest drop in turnout be
          # Rep change perc vs counties
      county.osuse.change.percvote.top = ggplot(data = sub.county.full.df.top,#[ #                 !is.na(model.r.df$os_prop)& !is.na(model.r.df$demwinner2012),],
                                                       aes(x = as.factor(ordered.turnout_change_perc.county),
-                                                             y = turnout_change_perc, fill = os_model_con, colour = rehandcounted_counties)) +
+                                                             y = turnout_change_perc * 100, fill = os_model_con, colour = rehandcounted_counties)) +
                                                           #group = demwinner2012)) +
                                                           #shape = factor(os_model_off))) +
     # geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
@@ -431,54 +431,23 @@ It can be seen that two of the counties that had the greatest drop in turnout be
   sub.county.full.df.bot = subset(county.full.df, ordered.turnout_change_perc.county <= county_split_value)
   
   
-  # Rep change perc vs counties
+  # Turnout change perc vs counties
      county.osuse.change.percvote.bot = ggplot(data = sub.county.full.df.bot,#[ #                 !is.na(model.r.df$os_prop)& !is.na(model.r.df$demwinner2012),],
                                                       aes(x = as.factor(ordered.turnout_change_perc.county),
-                                                             y = turnout_change_perc, fill = os_model_con, colour = rehandcounted_counties)) +
+                                                             y = turnout_change_perc * 100, fill = os_model_con, colour = rehandcounted_counties)) +
                                                           #group = demwinner2012)) +
                                                           #shape = factor(os_model_off))) +
-    geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
+    geom_jitter(size = 0.5, alpha = 0.3,stroke = 2,pch = 1) +
        geom_boxplot(colour = "black",alpha = 0.5) +
           # geom_smooth(colour="grey",alpha = 0.5,size = 1) +
         scale_y_continuous(name = "Change in turnout 2012-2016 (%)") +
  scale_x_discrete(name = "County", breaks = sub.county.full.df.bot$ordered.turnout_change_perc.county,
                       labels = as.character(sub.county.full.df.bot$county)) +
             scale_fill_discrete(name = "Optical scanner brand") +
+       scale_colour_discrete(name = "Recounted by hand during recount") +
       theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
   county.osuse.change.percvote.bot
 
-
-   # model.r.large.df = subset(model.r.df, total_ballots > 1200)
-   # 
-   #  dem.winnervote = ggplot(data = model.r.df[                                                 !is.na(model.r.df$turnout_reg_2012),],
-   #                                                     aes(x = registrants_change,
-   #                                                            y = turnout_change_perc, colour = os_model_con)) +
-   #                                                         # shape = os_model_con +
-   #   geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
-   #         geom_smooth(colour="grey",alpha = 0.5) +
-   #       scale_y_continuous(name = "Change in turnout 2012-2016 (%)") +
-   # scale_x_continuous(name = "Change in proportion of registered voters 2012 - 2016") +
-   # scale_colour_discrete(name = "Optical scanner brand") +
-   #    facet_wrap(~os_model_con) +
-   #     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
-   # dem.winnervote
-   
-  #       dem.osvote = ggplot(data = model.r.df,
-  #        aes(x = os_model_con,
-  #       y = rep.change.perc, fill = os_model_con)) +
-  #        # shape = os_prop_split +
-  #    geom_violin(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
-  #        scale_y_continuous(name = "Change in Republican vote 2012 - 2016 (%)") +
-  #  scale_x_discrete(name = "Optical scanner brand") +
-  # # scale_colour_discrete(name = "Optical scanner brand") +
-  #      # facet_wrap(~os_model_con) +
-  #      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1), legend.position = "none")
-  #  dem.osvote
-  #  
-  #        os.rep.change.melt = with(model.r.df[!is.na(model.r.df$os_prop),], melt(data.frame(os_model_con,rep.change.perc)))
-  #    os.rep.change.cast.simple = dcast(os.rep.change.melt, os_model_con ~variable, mean,na.rm=T)
-  #  colnames(os.rep.change.cast.simple) = c("Optical scanner brand","Change in Republican vote 2012-2016 (%)")
-  #  kable(os.rep.change.cast.simple,digits = 1, format = "markdown",padding = 0, align = "c")
 ```
 
 </div>
@@ -488,35 +457,10 @@ It can be seen that two of the counties that had the greatest drop in turnout be
 
 Now that we have done some initial data exploration to compare the optical scanner brands and their use in the Wisconsin counties, we can bring in some statistical models to see if there are any **real** differences worth worrying about. Most of the models in the following section are robust linear regressions, with errors clustered around county.
 
-<!-- <a id="displayText199" class = "button" href="javascript:toggle(199);">Show model code</a> -->
-<!--   <div id="toggleText199" style="display: block"> -->
-<!-- ```{r olsmodel99, echo=FALSE, warning = FALSE, fig.align='center'} -->
-<!-- model.formula = formula(turnout_change_perc ~ os_model_con)#*dem.perc2012) -->
-<!-- # log.formula = update(fin.formula, republican_votes.perc ~. + pct_black*registrants_change) -->
-<!-- # log.formula = update(fin.formula, republican_votes.perc ~. + tch_prop + demwinner2012 + sameday_reg_prop*demwinner2012*tch_prop) -->
-
-
-<!--   # ols1 = lm(model.formula, data = county.full.df, na.action = na.exclude) -->
-<!--    # summary(ols1) -->
-<!--   # AIC(ols1) -->
-
-
-<!-- ols2 <- ols(model.formula, data=county.full.df, x=TRUE, y=TRUE) -->
-<!-- # print(ols2) -->
-<!-- # Second, the cluster-robust covariance is called -->
-<!-- cov <- robcov(ols2, cluster=county.full.df$county) -->
-<!-- cov -->
-<!-- # print(cov$var) -->
-<!-- # AIC(cov) -->
-<!-- # vif(cov) -->
-<!-- ``` -->
-
-<!-- </div> -->
-
 The first model below shows the influence of the optical scanner model on the voter turnout change 2012-2016, and whether this is different in areas that voted more for Barack Obama in 2012. The term **os_model_con=Optech Eagle * dem.perc2012** below has a statistically significant effect (p < 0.05, large t value). It also shows that the ES&S D200, used in Milwaukee, is statistically significant in a similar way (os_model_con=ES&S DS200 * dem.perc2012 term), however it has a much weaker effect than the Optech Eagle (lower t value).  
 
 <a id="displayText1999" class = "button" href="javascript:toggle(1999);">Show model code</a>
-  <div id="toggleText1999" style="display: block">
+  <div id="toggleText1999" style="display: none">
 ```{r olsmodel0, echo=FALSE, warning = FALSE, fig.align='center'}
 model.formula = formula(turnout_change_perc ~ os_model_con*dem.perc2012)
 # log.formula = update(fin.formula, republican_votes.perc ~. + pct_black*registrants_change)
@@ -542,7 +486,7 @@ cov
 Is the effect of the Optech Eagle the same in the 51 counties that were hand recounted as in the 21 counties that were not? The following model shows that hand-recounted counties (**rehandcounted_countiesyes**) had a greater voter turnout, and that the presence of the Optech Eagle was linked to reduced voter turnout (**os_model_optechyes**). However, the Optech Eagle did not have a statistically significantly different effect depending on whether they were placed in a hand recounted county or not.
 
 <a id="displayText200" class = "button" href="javascript:toggle(200);">Show model code</a>
-  <div id="toggleText200" style="display: block">
+  <div id="toggleText200" style="display: none">
 ```{r olsmodeloptechrecount, echo=FALSE, warning = FALSE, fig.align='center'}
 model.formula = formula(turnout_change_perc ~ os_model_optech*rehandcounted_counties)
 # log.formula = update(fin.formula, republican_votes.perc ~. + pct_black*registrants_change)
@@ -567,36 +511,10 @@ model.formula = formula(turnout_change_perc ~ os_model_optech*rehandcounted_coun
 
 </div>
 
-<!-- <a id="displayText1001" class = "button" href="javascript:toggle(1001);">Show model code</a> -->
-<!--   <div id="toggleText1001" style="display: block"> -->
-<!-- ```{r olsmodel1, echo=FALSE, warning = FALSE, fig.align='center'} -->
-<!-- # log.formula = fin.formula -->
-<!-- model.formula = formula(turnout_change_perc ~ os_model_con*rehandcounted_counties) -->
-<!--  #log.formula = update(fin.formula, turnout_change_perc ~. + os_model_con*rehandcounted_counties) -->
-<!-- # log.formula = update(fin.formula, republican_votes.perc ~. + pct_black*registrants_change) -->
-<!-- # log.formula = update(fin.formula, republican_votes.perc ~. + tch_prop + demwinner2012 + sameday_reg_prop*demwinner2012*tch_prop) -->
-
-
-<!--   # ols1 = lm(model.formula, data = county.full.df, na.action = na.exclude) -->
-<!--    # summary(ols1) -->
-<!--   # AIC(ols1) -->
-
-<!-- ols2 <- ols(model.formula, data=county.full.df, x=TRUE, y=TRUE) -->
-<!-- # print(ols2) -->
-<!-- # Second, the cluster-robust covariance is called -->
-<!-- cov <- robcov(ols2, cluster=county.full.df$county) -->
-<!-- cov -->
-<!-- # print(cov$var) -->
-<!-- # AIC(cov) -->
-<!-- # vif(cov) -->
-<!-- ``` -->
-
-<!-- </div> -->
-
 The above finding is contradicted however when we add a number of voting and demographic variables alongside the optical scanning technology and recount variables. In the model below, **rehandcounted_counties=yes * os_model_optech=yes** is now statistically significant. It is worth looking into the effect of the Optech Eagle further.
 
 <a id="displayText2" class = "button" href="javascript:toggle(2);">Show model code</a>
-  <div id="toggleText2" style="display: block">
+  <div id="toggleText2" style="display: none">
 ```{r olsmodel2, echo=FALSE, warning = FALSE, fig.align='center'}
 county.formula = update(fin.formula, turnout_change_perc ~. - os_model_con + os_model_optech*rehandcounted_counties) 
 # log.formula = update(fin.formula, republican_votes.perc ~. + pct_black*registrants_change)
@@ -619,58 +537,10 @@ cov
 
 </div>
 
-<!-- Only looking at areas that did not do the full hand recount -->
-
-<!-- <a id="displayText20" class = "button" href="javascript:toggle(20);">Show model code</a> -->
-<!--   <div id="toggleText20" style="display: block"> -->
-<!-- ```{r olsmodel2optechrecount2, echo=FALSE, warning = FALSE, fig.align='center'} -->
-<!-- county.formula = update(fin.formula, turnout_change_perc ~. - os_model_con - rehandcounted_counties+ os_model_optech)  -->
-<!-- # log.formula = update(fin.formula, republican_votes.perc ~. + pct_black*registrants_change) -->
-<!-- # log.formula = update(fin.formula, republican_votes.perc ~. + tch_prop + demwinner2012 + sameday_reg_prop*demwinner2012*tch_prop) -->
-
-<!-- #   ols1 = lm(county.formula, data = county.full.df, na.action = na.exclude) -->
-<!-- #   summary(ols1) -->
-<!--   # AIC(ols1) -->
-
-<!-- ols2 <- ols(county.formula, data=fullrecount.df, x=TRUE, y=TRUE) -->
-<!-- # print(ols2) -->
-<!-- # Second, the cluster-robust covariance is called -->
-<!-- cov <- robcov(ols2, cluster=fullrecount.df$county) -->
-<!-- cov -->
-<!-- # print(cov$var) -->
-<!-- # AIC(cov) -->
-<!-- # vif(cov) -->
-<!-- ``` -->
-
-<!-- </div> -->
-
-<!-- <a id="displayText201" class = "button" href="javascript:toggle(201);">Show model code</a> -->
-<!--   <div id="toggleText201" style="display: block"> -->
-```{r olsmodel2optechrecount, echo=FALSE, warning = FALSE, fig.align='center'}
-# county.formula = update(fin.formula, turnout_change_perc ~. - rehandcounted_counties - os_model_optech) 
-# # log.formula = update(fin.formula, republican_votes.perc ~. + pct_black*registrants_change)
-# # log.formula = update(fin.formula, republican_votes.perc ~. + tch_prop + demwinner2012 + sameday_reg_prop*demwinner2012*tch_prop)
-# 
-# #   ols1 = lm(county.formula, data = county.full.df, na.action = na.exclude)
-# #   summary(ols1)
-#   # AIC(ols1)
-# 
-# ols2 <- ols(county.formula, data=fullrecount.df, x=TRUE, y=TRUE)
-# # print(ols2)
-# # Second, the cluster-robust covariance is called
-# cov <- robcov(ols2, cluster=fullrecount.df$county)
-# cov
-# print(cov$var)
-# AIC(cov)
-# vif(cov)
-```
-
-<!-- </div> -->
-
 Looking at the 21 counties that were not hand-recounted, do any stand out as having a particularly low voter turnout (compared with BROWN county, turnout change just around 0)? The following shows that Racine and Milwaukee counties had an unusally low voter turnout, event amongst counties that were not hand recounted.
 
 <a id="displayText3" class = "button" href="javascript:toggle(3);">Show model code</a>
-  <div id="toggleText3" style="display: block">
+  <div id="toggleText3" style="display: none">
 ```{r olsmodel3, echo=FALSE, warning = FALSE, fig.align='center'}
 county.model.formula = formula(turnout_change_perc ~ county) 
 # log.formula = update(fin.formula, republican_votes.perc ~. + pct_black*registrants_change)
@@ -710,14 +580,9 @@ model_focus = subset(model.r.df, county == "RACINE")# |  county == "MILWAUKEE" )
 # summary(model_focus$os_prop)
 
 milwaukee_focus = subset(model.r.df, county == "MILWAUKEE")# |  county == "MILWAUKEE" ) 
-
 eauclaire_focus = subset(model.r.df, county == "EAU CLAIRE")# |  county == "MILWAUKEE" ) 
-
 kenosha_focus = subset(model.r.df, county == "KENOSHA")# |  county == "MILWAUKEE" ) 
 
-# model_focus_ballots = sum(model_focus$total_ballots) # 
-# model_focus_votemachine_ballots = sum(model_focus$total_ballots* model_focus$os_prop) # 
-# votes_changed = model_focus_votemachine_ballots #* 0.043 # 
 
   ### Just the bottom 10
   
@@ -727,19 +592,20 @@ kenosha_focus = subset(model.r.df, county == "KENOSHA")# |  county == "MILWAUKEE
   sub.county.full.df.bot = subset(county.full.df, ordered.turnout_change_perc.county <= county_split_value)
   
   
-  # Rep change perc vs counties
+  # Turnout change perc vs counties
      county.osuse.change.percvote.bot = ggplot(data = sub.county.full.df.bot,#[ #                 !is.na(model.r.df$os_prop)& !is.na(model.r.df$demwinner2012),],
                                                       aes(x = as.factor(ordered.turnout_change_perc.county),
-                                                             y = turnout_change_perc, fill = os_model_con, colour = rehandcounted_counties)) +
+                                                             y = turnout_change_perc * 100, fill = os_model_con, colour = rehandcounted_counties)) +
                                                           #group = demwinner2012)) +
                                                           #shape = factor(os_model_off))) +
-    geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
+    geom_jitter(size = 0.5, alpha = 0.3,stroke = 2,pch = 1) +
        geom_boxplot(colour = "black",alpha = 0.5) +
           # geom_smooth(colour="grey",alpha = 0.5,size = 1) +
         scale_y_continuous(name = "Change in turnout 2012-2016 (%)") +
  scale_x_discrete(name = "County", breaks = sub.county.full.df.bot$ordered.turnout_change_perc.county,
                       labels = as.character(sub.county.full.df.bot$county)) +
             scale_fill_discrete(name = "Optical scanner brand") +
+       scale_colour_discrete(name = "Recounted by hand during recount") +
       theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
   county.osuse.change.percvote.bot
 
@@ -747,15 +613,17 @@ kenosha_focus = subset(model.r.df, county == "KENOSHA")# |  county == "MILWAUKEE
 
 </div>
 
-Below we compare the effect of optical scanners in three counties with the greatest drop in voter turnout according to municipality (Racine, Eau Claire, and Milkwaukee). Clearly we can see that the cities experienced the greatest drop.
+Below we compare the effect of optical scanners in four of the counties with the greatest drop in voter turnout according to municipality (Racine, Eau Claire, Kenosha, and Milkwaukee). They all used the Optech Eagle or the ES&S D200 optical scanner. Two of them (Eau Claire and Kenosha) had the votes verified by a hand recount, while the two others (Racine and Milwaukee) did not.
+
+Clearly we can see that in these counties, the cities experienced the greatest drop in voter turnout between 2012-2016, regardless of whether they were hand recounted or not. We will look more closely at these cities.
 
 <a id="displayText102" class = "button" href="javascript:toggle(102);">Hide graph and data</a>
   <div id="toggleText102" style="display: block">
-```{r subsetgraphs, echo=FALSE, fig.align='center', message=FALSE, warning=FALSE}
+```{r subsetgraphs, echo=FALSE, fig.align='center', fig.width=10, message=FALSE, warning=FALSE}
 # Rep change perc vs Rep vote perc 2016
      dem.tchuse.change.percvote = ggplot(data = model_focus,#[ #                 !is.na(model_focus$os_prop)& !is.na(model_focus$demwinner2012),],
                                                       aes(x = muni_county,
-                                                             y = turnout_change_perc, colour = rep.perc2012)) +
+                                                             y = turnout_change_perc * 100, colour = rep.perc2012)) +
                                                           #group = demwinner2012)) +
                                                           #shape = factor(tch_model_off))) +
     geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
@@ -771,7 +639,7 @@ Below we compare the effect of optical scanners in three counties with the great
   
        dem.tchuse.change.percvote = ggplot(data = eauclaire_focus,#[ #                 !is.na(model_focus$os_prop)& !is.na(model_focus$demwinner2012),],
                                                       aes(x = muni_county,
-                                                             y = turnout_change_perc, colour = rep.perc2012)) +
+                                                             y = turnout_change_perc * 100, colour = rep.perc2012)) +
                                                           #group = demwinner2012)) +
                                                           #shape = factor(tch_model_off))) +
     geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
@@ -787,7 +655,7 @@ Below we compare the effect of optical scanners in three counties with the great
   
      dem.tchuse.change.percvote = ggplot(data = milwaukee_focus,#[ #                 !is.na(model_focus$os_prop)& !is.na(model_focus$demwinner2012),],
                                                       aes(x = muni_county,
-                                                             y = turnout_change_perc, colour = rep.perc2012)) +
+                                                             y = turnout_change_perc * 100, colour = rep.perc2012)) +
                                                           #group = demwinner2012)) +
                                                           #shape = factor(tch_model_off))) +
     geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
@@ -803,7 +671,7 @@ Below we compare the effect of optical scanners in three counties with the great
   
        dem.tchuse.change.percvote = ggplot(data = kenosha_focus,#[ #                 !is.na(model_focus$os_prop)& !is.na(model_focus$demwinner2012),],
                                                       aes(x = muni_county,
-                                                             y = turnout_change_perc, colour = rep.perc2012)) +
+                                                             y = turnout_change_perc * 100, colour = rep.perc2012)) +
                                                           #group = demwinner2012)) +
                                                           #shape = factor(tch_model_off))) +
     geom_point(size = 1, alpha = 0.3,stroke = 2,pch = 21) +
@@ -823,8 +691,8 @@ Below we compare the effect of optical scanners in three counties with the great
 
 Let's compare the cities statistically. Here is the city of Racine side by side with the city of Eau Claire. If the unverified, Racine results were different from the verified, Eau Claire results in any way, we would expect to see **countyRACINE** or **countyRACINE:dem.perc2012** to be statistically significant below. However, they are not. Only **dem.perc2012** is statistically significant, which means that the 2012 Democrat vote could explain the drop in voter turnout in both cities, not differences in the way the technology was used.
 
-<a id="displayText1020" class = "button" href="javascript:toggle(1020);">Hide graph and data</a>
-  <div id="toggleText1020" style="display: block">
+<a id="displayText10201" class = "button" href="javascript:toggle(10201);">Show model code</a>
+  <div id="toggleText10201" style="display: none">
 ```{r model_racine_eauclaire, echo=FALSE, warning = FALSE, fig.align='center'}
 model_racine_eauclaire = subset(model.r.df, muni_county == "CITY OF RACINE RACINE" | muni_county == "CITY OF EAU CLAIRE EAU CLAIRE")  
 
@@ -849,13 +717,15 @@ county.model.formula = formula(turnout_change_perc ~ county*dem.perc2012)
 
 </div>
 
+Here is a graph showing the difference in turnout between Eau Claire and Racine cities.
+
 <a id="displayText10200" class = "button" href="javascript:toggle(10200);">Hide graph and data</a>
   <div id="toggleText10200" style="display: block">
 ```{r model_racine_eauclaire_graph, echo=FALSE, warning = FALSE, fig.align='center'}
 
   dem.tchuse.change.percvote = ggplot(data = model_racine_eauclaire,#[ #                 !is.na(model_focus$os_prop)& !is.na(model_focus$demwinner2012),],
                                                       aes(x = muni_county,
-                                                             y = turnout_change_perc, fill = rep.perc2012)) +
+                                                             y = turnout_change_perc * 100, fill = rep.perc2012)) +
                                                           #group = demwinner2012)) +
                                                           #shape = factor(tch_model_off))) +
     geom_jitter(size = 3, alpha = 1,stroke = NA,pch = 21) +
@@ -874,8 +744,8 @@ county.model.formula = formula(turnout_change_perc ~ county*dem.perc2012)
 
 I will do a similar analysis for two cities that used the ES&S D200, and where the turnout dropped since 2012. These are Milwaukee city (vote not verified by hand during recount) vs Kenosha city (vote verified by hand during recount).
 
-<a id="displayText1030" class = "button" href="javascript:toggle(1030);">Hide graph and data</a>
-  <div id="toggleText1030" style="display: block">
+<a id="displayText1030" class = "button" href="javascript:toggle(1030);">Show model code</a>
+  <div id="toggleText1030" style="display: none">
   
 ```{r model_milk_keno, echo=FALSE, warning = FALSE, fig.align='center'}
 model_milk_keno = subset(model.r.df, muni_county == "CITY OF MILWAUKEE MILWAUKEE" | muni_county == "CITY OF KENOSHA KENOSHA")  
@@ -901,6 +771,8 @@ county.model.formula = formula(turnout_change_perc ~ county*dem.perc2012)
 
 </div>
 
+And here's a graph comparing Milwaukee city with Kenosha City.
+
 <a id="displayText1040" class = "button" href="javascript:toggle(1040);">Hide graph and data</a>
   <div id="toggleText1040" style="display: block">
   
@@ -908,7 +780,7 @@ county.model.formula = formula(turnout_change_perc ~ county*dem.perc2012)
 
   dem.tchuse.change.percvote = ggplot(data = model_milk_keno,#[ #                 !is.na(model_focus$os_prop)& !is.na(model_focus$demwinner2012),],
                                                       aes(x = muni_county,
-                                                             y = turnout_change_perc, fill = rep.perc2012)) +
+                                                             y = turnout_change_perc * 100, fill = rep.perc2012)) +
                                                           #group = demwinner2012)) +
                                                           #shape = factor(tch_model_off))) +
     geom_jitter(size = 3, alpha = 1,stroke = NA,pch = 21) +
@@ -925,10 +797,10 @@ county.model.formula = formula(turnout_change_perc ~ county*dem.perc2012)
 
 </div>
 
-We can see the same if we compare the bottom four counties. Milwaukee and Racine are unverified, non-hand recounted cities, whereas Kenosha and Eau Claire are counties which had their results verified by a recount. In the below model, the fact of being hand recounted or not (**rehandcounted_countiesyes**) did not significantly effect the change in voter turnout 2012-2016, which suggests that the reduction in turnout was not manipulated in unverified cities.
+We can see similar results to the above if we compare the bottom four counties. Milwaukee and Racine are unverified, non-hand recounted cities, whereas Kenosha and Eau Claire are counties which had their results verified by a recount. In the below model, the fact of being hand recounted or not (**rehandcounted_countiesyes**) did not significantly effect the change in voter turnout 2012-2016, which suggests that the reduction in turnout was not manipulated in unverified cities.
 
-<a id="displayText1050" class = "button" href="javascript:toggle(1050);">Hide graph and data</a>
-  <div id="toggleText1050" style="display: block">
+<a id="displayText1050" class = "button" href="javascript:toggle(1050);">Show model code</a>
+  <div id="toggleText1050" style="display: none">
   
 ```{r model_bottom_four, echo=FALSE, warning = FALSE, fig.align='center'}
 model_bottom4 = subset(model.r.df, muni_county == "CITY OF RACINE RACINE" | muni_county == "CITY OF EAU CLAIRE EAU CLAIRE" | muni_county == "CITY OF MILWAUKEE MILWAUKEE"  | muni_county == "CITY OF KENOSHA KENOSHA" )
@@ -954,6 +826,8 @@ county.model.formula = formula(turnout_change_perc ~ rehandcounted_counties*dem.
 
 </div>
 
+Finally, a graph of the four cities we have been comparing, side by side.
+
 <a id="displayText1060" class = "button" href="javascript:toggle(1060);">Hide graph and data</a>
   <div id="toggleText1060" style="display: block">
 
@@ -961,7 +835,7 @@ county.model.formula = formula(turnout_change_perc ~ rehandcounted_counties*dem.
 
   dem.tchuse.change.percvote = ggplot(data = model_bottom4,#[ #                 !is.na(model_focus$os_prop)& !is.na(model_focus$demwinner2012),],
                                                       aes(x = muni_county,
-                                                             y = turnout_change_perc, fill = rep.perc2012)) +
+                                                             y = turnout_change_perc * 100, fill = rep.perc2012)) +
                                                           #group = demwinner2012)) +
                                                           #shape = factor(tch_model_off))) +
     geom_jitter(size = 3, alpha = 1,stroke = NA,pch = 21) +
